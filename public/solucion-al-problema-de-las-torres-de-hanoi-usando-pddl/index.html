@@ -1,0 +1,747 @@
+
+<!DOCTYPE html>
+<html lang="es">
+    
+<head><link rel=manifest href=/manifest.json>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Sebastian Gomez">
+    <title>Solución al problema de las torres de Hanoi usando PDDL - Sebastian Gomez</title>
+    <meta name="author" content="Sebastian Gomez">
+    
+        <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
+    
+    
+        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Las torres de hanoi (Explicacion del juego), es un juego-problema clásico muy conocido en las ciencias de la computación dada su complejidad. Una de las ramas en las que cobra interés dicho problema es la planificación en inteligencia artificial dada la complejidad de este problema, palabras más palabras menos la planificación en inteligencia artificial es “El proceso de búsqueda y articulación de una secuencia de acciones que permitan alcanzar un objetivo” (vea más aquí). En este pequeño post pretendo ofrecer una representación de dicho problema en un lenguaje de planificación llamado PDDL (Planning Domain Definition Language) y como esta representación nos ayuda a obtener soluciones a dicho problema usando esta representación en el planificador LPG. \nLas Reglas del JuegoUn disco de mayor tamaño no puede ir encima de un disco de menor tamaño. Los discos deben ser apilados de mayor a menos, comenzando desde la base de la torre. Los discos se deben pasar de la torre uno (1) a la torre tres (3). Este juego puede ser jugado en aquí.\nPlanteamiento del ProblemaUna visión general del juego se puede ver de la siguiente manera:   \nDefinición de Objects¿Cuáles son los objetos que usaremos en el ejercicio? Tres discos y Tres torres, es decir: disco1, disco2, disco3, torre1, torre2, torre3 Se tendrá un brazo mecánico el cual manipulara los discos.\nEstado inicialEl estado inicial de donde parte el problema luce de la siguiente manera:    Y dicho esto es hora de empezar a definir en lenguaje PDDL cada uno de los elementos que compondrán nuestro problema: (Problema en PDDL quiere decir la especificación de como esta el mundo antes de empezar estado inicial, y como queremos que quede luego de ejecutar el plan es decir estado final). Empezamos con la definición de nuestro problema: Se define la propiedad del objeto, es decir, el objeto “disco1”, se especifica que es un Disco, esto mismo se hace con los demás objetos  Se debe definir que hay discos de mayor tamaño que otros, con el fin de cumplir una de las reglas de juego.  Se establece el orden de los discos acorde a su tamaño  Se define que el disco de la parte superior quedo libre y que el brazo mecánico esta libre.  Se establece que las torres dos y tres están vacías.  Así nuestro estado inicial completo quedaría definido así:\n1234567891011121314151617181920(:domain torres)(:objects disco1 disco2 disco3 torre1 torre2 torre3)(:init (esdisco disco1)(esdisco disco2)(esdisco disco3)(estorre torre1)(estorre torre2)(estorre torre3)(mayor disco3 disco2)(mayor disco3 disco1)(mayor disco2 disco1)(torrevacia torre2)(torrevacia torre3)(entorre disco3 torre1)(encima disco2 disco3)(encima disco1 disco2)(libre disco1)(brazolibre))\nEs tiempo de definir nuestro objetivo o estado final, una representación gráfica de ese se muestra a continuación:  Se define el estado de los discos y en la torre que va a quedar, además definir que el disco superior queda libre y que el brazo queda libre.\n1234567(:goal (and(entorre disco3 torre3)(encima disco2 disco3)(encima disco1 disco2)(libre disco1)(brazolibre))\nUna vez representado nuestro estado inicial y estado final, esto es guardado en un archivo .pddl usualmente llamado problem.pddl (Porque usualmente esto es lo que se quiere resolver). Ahora procederemos a hablar de nuestro dominio o representacion de las acciones que componen el mundo del problema de las torres de hanoi:\nPlanteamiento del dominio Definición de los predicados que serán usados para representar el estado del mundo: Encima: recibe dos variables que sean discos. Entorre: recibe una variable que sea disco y otra que sea torre. Libre: Pone en estado libre la variable que se le asigne. Sujeto: Al usar el brazo mecánico, el objeto recibido queda sujeto. Brazolibre: El brazo mecánico queda en estado libre. Mayor: Define que la primera variable es mayor que la segunda variable. Estorre: Define que la variable que recibe es una torre. Esdisco: Define que la variable que recibe es un disco. Torrevacia: Define que la torre queda vacía.\n1234567891011(:predicates (encima ?d1 ?d2)(entorre ?d ?t)(libre ?d)(sujeto ?d)(brazolibre)(mayor ?d1 ?d2)(estorre ?t)(esdisco ?d)(torrevacia ?t))\nDefinición de las acciones que cambiaran el estado del mundo:\nDesapilarParámetros:\nRecibe dos variables tipo disco.\nPrecondiciones:\nValidar que las dos variables que se reciben si sean discos.\nLa segunda variable debe ser mayor a la primera variable.\nLa primera variable debe estar encima de la segunda variable.\nLa primera Variable debe estar libre.\nEl brazo mecánico debe estar libre.\nEfecto:\nLa primera variable pasa a tener estado sujeto.\nLa primera variable deja de estar encima de la segunda variable.\nLa primera Variable no está libre.\nEl brazo mecánico no está libre.\n12345678910111213141516(:action desapilar:parameters (?d1 ?d2):precondition (and (esdisco ?d1)(esdisco ?d2)(mayor ?d2 ?d1)(encima ?d1 ?d2)(libre ?d1)(brazolibre)):effect (and (sujeto ?d1)(not (encima ?d1 ?d2))(not (brazolibre))(not (libre ?d1))(libre ?d2)))\nCogerParámetros:\nRecibe una variable tipo disco y una variable tipo torre.\nPrecondiciones:\nLa primera variable debe ser tipo disco\nLa segunda variable debe ser tipo Torre.\nLa primera variable debe estar libre.\nLa primera variable debe estar en la torre definida en la segunda\nEl brazo mecánico debe estar libre.\nLa torre no puede estar vacía.\n Efecto:\nLa primera variable pasa a tener estado sujeto.\nLa primera variable deja de estar en la torre de la segunda variable.\nLa primera Variable no está libre.\nEl brazo mecánico no está libre.\nLa torre de la segunda variable pasa a estar vacía.\n12345678910111213141516(:action coger:parameters (?d1 ?t1):precondition (and (esdisco ?d1)(estorre ?t1)(libre ?d1)(entorre ?d1 ?t1)(brazolibre)(not (torrevacia ?t1))):effect (and (sujeto ?d1)(not (entorre ?d1 ?t1))(not (brazolibre))(not (libre ?d1))(torrevacia ?t1)))\nApilarParámetros:\nRecibe dos variables tipo disco.\nPrecondiciones:\nValidar que las dos variables que se reciben si sean discos.\nLa segunda variable debe ser mayor a la primera variable.\nLa primera variable debe estar con estado\nLa segunda Variable debe estar libre.\nLa primera variable no debe estar encima de la segunda variable.\nEl brazo mecánico no está libre.\nLa primera Variable no está libre.\nEfecto:\nLa primera Variable pasa a estar libre.\nLa primera variable pasa a estar encima de la segunda variable.\nEl brazo mecánico pasa a estar libre.\nLa primera variable pasa a tener estado no sujeto.\nLa segunda Variable no está libre.\n123456789101112131415161718(:action apilar:parameters (?d1 ?d2):precondition (and (esdisco ?d1)(esdisco ?d2)(mayor ?d2 ?d1)(sujeto ?d1)(libre ?d2)(not (encima ?d1 ?d2))(not (brazolibre))(not (libre ?d1))):effect (and (libre ?d1)(encima ?d1 ?d2)(brazolibre)(not (sujeto?d1))(not (libre ?d2))))\nPonerParámetros:\nRecibe una variable tipo disco y una variable tipo torre.\nPrecondiciones:\nLa primera variable debe ser tipo disco\nLa segunda variable debe ser tipo Torre.\nLa primera variable debe estar en estado sujeto.\nLa primera variable no debe estar en la torre definida en la segunda variable.\nEl brazo mecánico no debe estar libre.\nLa primera variable no debe estar libre.\nLa torre debe estar vacía.\nEfecto:\nLa primera variable pasa a estar en la torre de la segunda variable.\nLa primera Variable pasa a estar libre.\nEl brazo mecánico pasa a estar libre.\nLa primera variable pasa a tener estado no sujeto.\nLa torre de la segunda variable pasa a estar ocupada.\n12345678910111213141516(:action poner:parameters (?d1 ?t1):precondition (and (esdisco ?d1)(estorre ?t1)(sujeto ?d1)(not (entorre ?d1 ?t1))(not (brazolibre))(not (libre ?d1))(torrevacia ?t1)):effect (and (entorre ?d1 ?t1)(libre ?d1)(brazolibre)(not (sujeto?d1))(not (torrevacia ?t1))))\nHecho esto volcamos todo nuestro dominio a un archivo denominado domain.pddl. Ya con nuestros dos archivos domain.pddl y problem.pddl estamos listos para que nuestro planificador nos muestre posibles secuencias de acciones para llegar a la solución de nuestro problema, a continuación presento una de ellas:  Es posible también realizar algunas variantes para soportar el problema con 4, 8 o N discos solo es cuestión de jugar un poco con el problem.pddl. Para descargar los archivos problem.pddl o domain.pddl haz click sobre sus titulos.\n","dateCreated":"2015-10-18T15:49:44-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-10-18T15:49:44-05:00","description":"Las torres de hanoi (Explicacion del juego), es un juego-problema clásico muy conocido en las ciencias de la computación dada su complejidad. Una de las ramas en las que cobra interés dicho problema es la planificación en inteligencia artificial dada la complejidad de este problema, palabras más palabras menos la planificación en inteligencia artificial es “El proceso de búsqueda y articulación de una secuencia de acciones que permitan alcanzar un objetivo” (vea más aquí). En este pequeño post pretendo ofrecer una representación de dicho problema en un lenguaje de planificación llamado PDDL (Planning Domain Definition Language) y como esta representación nos ayuda a obtener soluciones a dicho problema usando esta representación en el planificador LPG.","headline":"Solución al problema de las torres de Hanoi usando PDDL","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/","keywords":"Inteligencia Artificial, PDDL., Planificación en Inteligencia Artificial"}</script>
+    <meta name="description" content="Las torres de hanoi (Explicacion del juego), es un juego-problema clásico muy conocido en las ciencias de la computación dada su complejidad. Una de las ramas en las que cobra interés dicho problema e">
+<meta name="keywords" content="Inteligencia Artificial,PDDL.,Planificación en Inteligencia Artificial">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Solución al problema de las torres de Hanoi usando PDDL">
+<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/index.html">
+<meta property="og:site_name" content="Sebastian Gomez">
+<meta property="og:description" content="Las torres de hanoi (Explicacion del juego), es un juego-problema clásico muy conocido en las ciencias de la computación dada su complejidad. Una de las ramas en las que cobra interés dicho problema e">
+<meta property="og:locale" content="es">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-1-300x203.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-2-300x114.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-3.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-4.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-5.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-6.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-7.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-8-300x115.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-15-300x208.png">
+<meta property="og:updated_time" content="2018-07-09T18:54:39.550Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Solución al problema de las torres de Hanoi usando PDDL">
+<meta name="twitter:description" content="Las torres de hanoi (Explicacion del juego), es un juego-problema clásico muy conocido en las ciencias de la computación dada su complejidad. Una de las ramas en las que cobra interés dicho problema e">
+<meta name="twitter:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-1-300x203.png">
+<meta name="twitter:creator" content="@sebasgojs">
+    
+        <link rel="publisher" href="https://plus.google.com/+SebastianGomezFrontEnd"/>
+    
+    
+        
+    
+    
+        <meta property="og:image" content="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=640"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-5pavynit182cxzgycpqavetpez2yhfpthd7iavub2bczfzdrk7zx7lnrfejr.min.css">
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-63483506-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Sebastian Gomez</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=90" alt="Foto de autor"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=110" alt="Foto de autor"/>
+                </a>
+                <h4 class="sidebar-profile-name">Sebastian Gomez</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>Mi nombre es Sebastián Gómez, soy ingeniero de sistemas e Informática y Magister en Ingeniería de Sistemas de la Universidad Nacional de Colombia. Actualmente trabajo en Globant como Web UI Developer con énfasis en aplicaciones híbridas y cross compiladas. Soy el organizador del Google Developers Group de Medellín, así que contactame si quieres dar alguna charla o participar actuamente de esta comunidad.</p>
+</h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Inicio"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Inicio</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="Categorías"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Categorías</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="Etiquetas"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Etiquetas</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="Archivos"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Archivos</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-google-search"
+                             href="#search"
+                            
+                            title="Buscar"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Buscar</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="Sobre mí"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Sobre mí</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/seagomezar" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/sebasgojs" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/u/1/+SebastianGomezFrontEnd" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/sebastian-gomez-frontend/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            Solución al problema de las torres de Hanoi usando PDDL
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2015-10-18T15:49:44-05:00">
+	
+		    18 oct. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Inteligencia-Artificial/">Inteligencia Artificial</a>
+
+
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>Las torres de hanoi (<a href="https://es.wikipedia.org/wiki/Torres_de_Han%C3%B3i" target="_blank" rel="noopener">Explicacion del juego</a>), es un juego-problema clásico muy conocido en las ciencias de la computación dada su complejidad. Una de las ramas en las que cobra interés dicho problema es la planificación en inteligencia artificial dada la complejidad de este problema, palabras más palabras menos la planificación en inteligencia artificial es “El proceso de búsqueda y articulación de una secuencia de acciones que permitan alcanzar un objetivo” (vea más <a href="http://www.davidam.com/docu/aplic-ia/planific.html" target="_blank" rel="noopener">aquí</a>). En este pequeño post pretendo ofrecer una representación de dicho problema en un lenguaje de planificación llamado <a href="https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language" target="_blank" rel="noopener">PDDL</a> (<strong>Planning Domain Definition Language</strong>) y como esta representación nos ayuda a obtener soluciones a dicho problema usando esta representación en el planificador <a href="https://courses.cs.washington.edu/courses/cse574/03sp/planners.html" target="_blank" rel="noopener">LPG</a>. <a id="more"></a></p>
+<h3 id="Las-Reglas-del-Juego"><a href="#Las-Reglas-del-Juego" class="headerlink" title="Las Reglas del Juego"></a><strong>Las Reglas del Juego</strong></h3><p>Un disco de mayor tamaño no puede ir encima de un disco de menor tamaño. Los discos deben ser apilados de mayor a menos, comenzando desde la base de la torre. Los discos se deben pasar de la torre uno (1) a la torre tres (3). Este juego puede ser jugado en <a href="http://www.juegosparalistos.es/Juegos_flash/hanoi.html" target="_blank" rel="noopener">aquí</a>.</p>
+<h2 id="Planteamiento-del-Problema"><a href="#Planteamiento-del-Problema" class="headerlink" title="Planteamiento del Problema"></a><strong>Planteamiento del Problema</strong></h2><p>Una visión general del juego se puede ver de la siguiente manera: <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-1.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-1-300x203.png" alt="planning-1"></a>  </p>
+<h3 id="Definicion-de-Objects"><a href="#Definicion-de-Objects" class="headerlink" title="Definición de Objects"></a><strong>Definición de Objects</strong></h3><p>¿Cuáles son los objetos que usaremos en el ejercicio? Tres discos y Tres torres, es decir: <strong>disco1, disco2, disco3, torre1, torre2, torre3</strong> Se tendrá un brazo mecánico el cual manipulara los discos<strong>.</strong></p>
+<h3 id="Estado-inicial"><a href="#Estado-inicial" class="headerlink" title="Estado inicial"></a><strong>Estado inicial</strong></h3><p>El estado inicial de donde parte el problema luce de la siguiente manera: <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-2.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-2-300x114.png" alt="planning-2"></a>   Y dicho esto es hora de empezar a definir en lenguaje PDDL cada uno de los elementos que compondrán nuestro problema: (Problema en PDDL quiere decir la especificación de como esta el mundo antes de empezar estado inicial, y como queremos que quede luego de ejecutar el plan es decir estado final). Empezamos con la definición de nuestro problema: Se define la propiedad del objeto, es decir, el objeto “disco1”, se especifica que es un Disco, esto mismo se hace con los demás objetos <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-3.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-3.png" alt="planning-3"></a> Se debe definir que hay discos de mayor tamaño que otros, con el fin de cumplir una de las reglas de juego. <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-4.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-4.png" alt="planning-4"></a> Se establece el orden de los discos acorde a su tamaño <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-5.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-5.png" alt="planning-5"></a> Se define que el disco de la parte superior quedo libre y que el brazo mecánico esta libre. <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-6.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-6.png" alt="planning-6"></a> Se establece que las torres dos y tres están vacías. <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-7.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-7.png" alt="planning-7"></a> Así nuestro estado inicial completo quedaría definido así:</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">(<span class="symbol">:domain</span> torres)</span><br><span class="line">(<span class="symbol">:objects</span> disco1 disco2 disco3 torre1 torre2 torre3)</span><br><span class="line">(<span class="symbol">:init</span> </span><br><span class="line">(<span class="name">esdisco</span> disco1)</span><br><span class="line">(<span class="name">esdisco</span> disco2)</span><br><span class="line">(<span class="name">esdisco</span> disco3)</span><br><span class="line">(<span class="name">estorre</span> torre1)</span><br><span class="line">(<span class="name">estorre</span> torre2)</span><br><span class="line">(<span class="name">estorre</span> torre3)</span><br><span class="line">(<span class="name">mayor</span> disco3 disco2)</span><br><span class="line">(<span class="name">mayor</span> disco3 disco1)</span><br><span class="line">(<span class="name">mayor</span> disco2 disco1)</span><br><span class="line">(<span class="name">torrevacia</span> torre2)</span><br><span class="line">(<span class="name">torrevacia</span> torre3)</span><br><span class="line">(<span class="name">entorre</span> disco3 torre1)</span><br><span class="line">(<span class="name">encima</span> disco2 disco3)</span><br><span class="line">(<span class="name">encima</span> disco1 disco2)</span><br><span class="line">(<span class="name">libre</span> disco1)</span><br><span class="line">(<span class="name">brazolibre</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>Es tiempo de definir nuestro objetivo o estado final, una representación gráfica de ese se muestra a continuación: <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-8.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-8-300x115.png" alt="planning-8"></a> Se define el estado de los discos y en la torre que va a quedar, además definir que el disco superior queda libre y que el brazo queda libre.</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(<span class="symbol">:goal</span> (<span class="name"><span class="builtin-name">and</span></span></span><br><span class="line">(<span class="name">entorre</span> disco3 torre3)</span><br><span class="line">(<span class="name">encima</span> disco2 disco3)</span><br><span class="line">(<span class="name">encima</span> disco1 disco2)</span><br><span class="line">(<span class="name">libre</span> disco1)</span><br><span class="line">(<span class="name">brazolibre</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>Una vez representado nuestro estado inicial y estado final, esto es guardado en un archivo .pddl usualmente llamado problem.pddl (Porque usualmente esto es lo que se quiere resolver). Ahora procederemos a hablar de nuestro dominio o representacion de las acciones que componen el mundo del problema de las torres de hanoi:</p>
+<p><strong>Planteamiento del dominio</strong> Definición de los predicados que serán usados para representar el estado del mundo: <strong>Encima</strong>: recibe dos variables que sean discos. <strong>Entorre</strong>: recibe una variable que sea disco y otra que sea torre. <strong>Libre</strong>: Pone en estado libre la variable que se le asigne. <strong>Sujeto</strong>: Al usar el brazo mecánico, el objeto recibido queda sujeto. <strong>Brazolibre</strong>: El brazo mecánico queda en estado libre. <strong>Mayor</strong>: Define que la primera variable es mayor que la segunda variable. <strong>Estorre</strong>: Define que la variable que recibe es una torre. <strong>Esdisco</strong>: Define que la variable que recibe es un disco. <strong>Torrevacia</strong>: Define que la torre queda vacía.</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(<span class="symbol">:predicates</span> </span><br><span class="line">(<span class="name">encima</span> ?d1 ?d2)</span><br><span class="line">(<span class="name">entorre</span> ?d ?<span class="literal">t</span>)</span><br><span class="line">(<span class="name">libre</span> ?d)</span><br><span class="line">(<span class="name">sujeto</span> ?d)</span><br><span class="line">(<span class="name">brazolibre</span>)</span><br><span class="line">(<span class="name">mayor</span> ?d1 ?d2)</span><br><span class="line">(<span class="name">estorre</span> ?<span class="literal">t</span>)</span><br><span class="line">(<span class="name">esdisco</span> ?d)</span><br><span class="line">(<span class="name">torrevacia</span> ?<span class="literal">t</span>)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>Definición de las acciones que cambiaran el estado del mundo:</p>
+<h3 id="Desapilar"><a href="#Desapilar" class="headerlink" title="Desapilar"></a>Desapilar</h3><p><strong>Parámetros:</strong></p>
+<p>Recibe dos variables tipo disco.</p>
+<p><strong>Precondiciones:</strong></p>
+<p>Validar que las dos variables que se reciben <strong>si sean discos.</strong></p>
+<p>La segunda variable debe ser <strong>mayor</strong> a la primera variable.</p>
+<p>La primera variable debe estar <strong>encima</strong> de la segunda variable.</p>
+<p>La <strong>primera Variable</strong> debe estar <strong>libre</strong>.</p>
+<p>El <strong>brazo mecánico</strong> debe estar <strong>libre</strong>.</p>
+<p><strong>Efecto:</strong></p>
+<p>La primera variable pasa a tener estado <strong>sujeto</strong>.</p>
+<p>La primera variable <strong>deja</strong> de estar <strong>encima</strong> de la segunda variable.</p>
+<p>La <strong>primera Variable</strong> no está <strong>libre</strong>.</p>
+<p>El <strong>brazo mecánico</strong> no está <strong>libre</strong>.</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(<span class="symbol">:action</span> desapilar</span><br><span class="line"><span class="symbol">:parameters</span> (<span class="name">?d1</span> ?d2)</span><br><span class="line"><span class="symbol">:precondition</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">esdisco</span> ?d1)</span><br><span class="line">(<span class="name">esdisco</span> ?d2)</span><br><span class="line">(<span class="name">mayor</span> ?d2 ?d1)</span><br><span class="line">(<span class="name">encima</span> ?d1 ?d2)</span><br><span class="line">(<span class="name">libre</span> ?d1)</span><br><span class="line">(<span class="name">brazolibre</span>)</span><br><span class="line">)</span><br><span class="line"><span class="symbol">:effect</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">sujeto</span> ?d1)</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">encima</span> ?d1 ?d2))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">brazolibre</span>))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">libre</span> ?d1))</span><br><span class="line">(<span class="name">libre</span> ?d2)</span><br><span class="line">)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id="Coger"><a href="#Coger" class="headerlink" title="Coger"></a>Coger</h3><p><strong>Parámetros:</strong></p>
+<p>Recibe una variable tipo disco y una variable tipo torre.</p>
+<p><strong>Precondiciones:</strong></p>
+<p><strong>L</strong>a primera variable debe ser <strong>tipo disco</strong></p>
+<p>La segunda variable debe ser <strong>tipo Torre.</strong></p>
+<p>La primera variable debe estar <strong>libre</strong>.</p>
+<p>La primera variable debe estar <strong>en la torre</strong> definida en la segunda</p>
+<p>El <strong>brazo mecánico</strong> debe estar <strong>libre</strong>.</p>
+<p>La torre <strong>no</strong> puede estar <strong>vacía</strong>.</p>
+<p><strong> Efecto:</strong></p>
+<p>La primera variable pasa a tener estado <strong>sujeto</strong>.</p>
+<p>La primera variable <strong>deja</strong> de estar <strong>en la torre</strong> de la segunda variable.</p>
+<p>La <strong>primera Variable</strong> no está <strong>libre</strong>.</p>
+<p>El <strong>brazo mecánico</strong> no está <strong>libre</strong>.</p>
+<p>La torre de la segunda variable pasa a estar vacía.</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(<span class="symbol">:action</span> coger</span><br><span class="line"><span class="symbol">:parameters</span> (<span class="name">?d1</span> ?t1)</span><br><span class="line"><span class="symbol">:precondition</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">esdisco</span> ?d1)</span><br><span class="line">(<span class="name">estorre</span> ?t1)</span><br><span class="line">(<span class="name">libre</span> ?d1)</span><br><span class="line">(<span class="name">entorre</span> ?d1 ?t1)</span><br><span class="line">(<span class="name">brazolibre</span>)</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">torrevacia</span> ?t1))</span><br><span class="line">)</span><br><span class="line"><span class="symbol">:effect</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">sujeto</span> ?d1)</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">entorre</span> ?d1 ?t1))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">brazolibre</span>))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">libre</span> ?d1))</span><br><span class="line">(<span class="name">torrevacia</span> ?t1)</span><br><span class="line">)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id="Apilar"><a href="#Apilar" class="headerlink" title="Apilar"></a>Apilar</h3><p><strong>Parámetros:</strong></p>
+<p>Recibe dos variables tipo disco.</p>
+<p><strong>Precondiciones:</strong></p>
+<p>Validar que las dos variables que se reciben <strong>si sean discos.</strong></p>
+<p>La segunda variable debe ser <strong>mayor</strong> a la primera variable.</p>
+<p>La primera variable debe estar con estado</p>
+<p>La <strong>segunda Variable</strong> debe estar <strong>libre</strong>.</p>
+<p>La primera variable <strong>no</strong> debe estar <strong>encima</strong> de la segunda variable.</p>
+<p>El <strong>brazo mecánico</strong> <strong>no</strong> está <strong>libre</strong>.</p>
+<p>La <strong>primera Variable</strong> no está <strong>libre</strong>.</p>
+<p><strong>Efecto:</strong></p>
+<p>La primera Variable pasa a estar <strong>libre</strong>.</p>
+<p>La primera variable <strong>pasa a</strong> estar <strong>encima</strong> de la segunda variable.</p>
+<p>El <strong>brazo mecánico</strong> pasa a estar <strong>libre</strong>.</p>
+<p>La primera variable pasa a tener estado <strong>no sujeto</strong>.</p>
+<p>La <strong>segunda Variable</strong> no está <strong>libre</strong>.</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">(<span class="symbol">:action</span> apilar</span><br><span class="line"><span class="symbol">:parameters</span> (<span class="name">?d1</span> ?d2)</span><br><span class="line"><span class="symbol">:precondition</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">esdisco</span> ?d1)</span><br><span class="line">(<span class="name">esdisco</span> ?d2)</span><br><span class="line">(<span class="name">mayor</span> ?d2 ?d1)</span><br><span class="line">(<span class="name">sujeto</span> ?d1)</span><br><span class="line">(<span class="name">libre</span> ?d2)</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">encima</span> ?d1 ?d2))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">brazolibre</span>))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">libre</span> ?d1))</span><br><span class="line">)</span><br><span class="line"><span class="symbol">:effect</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">libre</span> ?d1)</span><br><span class="line">(<span class="name">encima</span> ?d1 ?d2)</span><br><span class="line">(<span class="name">brazolibre</span>)</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">sujeto?d1</span>))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">libre</span> ?d2))</span><br><span class="line">)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h3 id="Poner"><a href="#Poner" class="headerlink" title="Poner"></a>Poner</h3><p><strong>Parámetros:</strong></p>
+<p>Recibe una variable tipo disco y una variable tipo torre.</p>
+<p><strong>Precondiciones:</strong></p>
+<p><strong>L</strong>a primera variable debe ser <strong>tipo disco</strong></p>
+<p>La segunda variable debe ser <strong>tipo Torre.</strong></p>
+<p>La primera variable debe estar en estado <strong>sujeto</strong>.</p>
+<p>La primera variable <strong>no</strong> debe estar <strong>en la torre</strong> definida en la segunda variable.</p>
+<p>El <strong>brazo mecánico</strong> <strong>no</strong> debe estar <strong>libre</strong>.</p>
+<p>La primera variable <strong>no</strong> debe estar <strong>libre</strong>.</p>
+<p>La torre debe estar <strong>vacía</strong>.</p>
+<p><strong>Efecto:</strong></p>
+<p>La primera variable <strong>pasa a</strong> estar <strong>en la torre</strong> de la segunda variable.</p>
+<p>La <strong>primera Variable</strong> pasa a estar <strong>libre</strong>.</p>
+<p>El <strong>brazo mecánico</strong> pasa a estar <strong>libre</strong>.</p>
+<p>La primera variable pasa a tener estado <strong>no sujeto</strong>.</p>
+<p>La torre de la segunda variable pasa a estar <strong>ocupada</strong>.</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(<span class="symbol">:action</span> poner</span><br><span class="line"><span class="symbol">:parameters</span> (<span class="name">?d1</span> ?t1)</span><br><span class="line"><span class="symbol">:precondition</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">esdisco</span> ?d1)</span><br><span class="line">(<span class="name">estorre</span> ?t1)</span><br><span class="line">(<span class="name">sujeto</span> ?d1)</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">entorre</span> ?d1 ?t1))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">brazolibre</span>))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">libre</span> ?d1))</span><br><span class="line">(<span class="name">torrevacia</span> ?t1)</span><br><span class="line">)</span><br><span class="line"><span class="symbol">:effect</span> (<span class="name"><span class="builtin-name">and</span></span> (<span class="name">entorre</span> ?d1 ?t1)</span><br><span class="line">(<span class="name">libre</span> ?d1)</span><br><span class="line">(<span class="name">brazolibre</span>)</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">sujeto?d1</span>))</span><br><span class="line">(<span class="name"><span class="builtin-name">not</span></span> (<span class="name">torrevacia</span> ?t1)))</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>Hecho esto volcamos todo nuestro dominio a un archivo denominado domain.pddl. Ya con nuestros dos archivos domain.pddl y problem.pddl estamos listos para que nuestro planificador nos muestre posibles secuencias de acciones para llegar a la solución de nuestro problema, a continuación presento una de ellas: <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-15.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/planning-15-300x208.png" alt="planning-15"></a> Es posible también realizar algunas variantes para soportar el problema con 4, 8 o N discos solo es cuestión de jugar un poco con el problem.pddl. Para descargar los archivos <a href="http://www.sebastian-gomez.com/shared/torresprobl.pddl" target="_blank" rel="noopener">problem.pddl</a> o <a href="http://www.sebastian-gomez.com/shared/torresdom.pddl" target="_blank" rel="noopener">domain.pddl</a> haz click sobre sus titulos.</p>
+
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">ETIQUETADO EN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/Inteligencia-Artificial/">Inteligencia Artificial</a> <a class="tag tag--primary tag--small t-link" href="/tags/PDDL/">PDDL.</a> <a class="tag tag--primary tag--small t-link" href="/tags/Planificacion-en-Inteligencia-Artificial/">Planificación en Inteligencia Artificial</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/creacion-y-personalizacion-de-interfaces-graficas-usando-netbeans/" data-tooltip="Creación y Personalización de interfaces gráficas usando NetBeans" aria-label="ANTERIOR: Creación y Personalización de interfaces gráficas usando NetBeans">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/preguntas-frecuentes-sobre-c/" data-tooltip="Generalidades sobre Cpp" aria-label="SIGUIENTE: Generalidades sobre Cpp">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+                <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Sebastian Gomez. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/creacion-y-personalizacion-de-interfaces-graficas-usando-netbeans/" data-tooltip="Creación y Personalización de interfaces gráficas usando NetBeans" aria-label="ANTERIOR: Creación y Personalización de interfaces gráficas usando NetBeans">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/preguntas-frecuentes-sobre-c/" data-tooltip="Generalidades sobre Cpp" aria-label="SIGUIENTE: Generalidades sobre Cpp">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/">
+                    <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+    
+        
+            
+                
+    <div id="about">
+        <div id="about-card">
+            <div id="about-btn-close">
+                <i class="fa fa-remove"></i>
+            </div>
+            <main id="main" class="site-main" role="main" style="margin-left: 1em; margin-right: 1em; line-height: 24px; text-rendering: optimizelegibility;">
+                <article id="post-92" class="post-92 page type-page status-publish hentry">
+                    <div class="post-inner-content well">
+                        <header class="entry-header">
+                            <h1 class="entry-title">Sobre mí</h1>
+                        </header>
+                        <!-- .entry-header -->
+                        <div class="entry-content">
+                            <p style="text-align: justify;">
+                                <img
+                                    src="../assets/images/me.png"
+                                    alt="sebastian" width="205" height="300" srcset="../assets/images/me.png"
+                                    sizes="(max-width: 205px) 100vw, 205px"
+                                    style="float: left; margin-right: 1em;">Mi nombre es Sebastián Gómez, soy ingeniero de sistemas
+                                e Informática y Magister en Ingeniería de Sistemas
+                                de la Universidad Nacional de Colombia.</p>
+                            <p style="text-align: justify;">Actualmente trabajo en
+                                <a href="https://www.globant.com/">Globant</a> como Web UI Developer con énfasis en
+                                aplicaciones híbridas y cross compiladas. Soy el
+                                organizador del
+                                <a href="https://www.meetup.com/es-ES/GDG-Medellin">Google Developers Group de Medellín</a>, así que
+                                contactame si quieres dar alguna charla o participar
+                                actuamente de esta comunidad.</p>
+                            <p style="text-align: justify;">He participado en una Startup Colombiana&nbsp;llamada
+                                SponzorMe al lado de
+                                <a href="https://www.carlosrojasblog.com/">Carlos Rojas</a> y fuí participante de
+                                <a href="http://www.startupchile.org/">Startup Chile</a>&nbsp;a pesar de no haber continuado
+                                con esta startup me apasiona el emprendimiento y
+                                me gusta aconsejar y ayudar startups como mentor
+                                técnico. También he trabajado en empresas Americanas
+                                como
+                                <a href="https://studiohyperset.com/">StudioHyperset</a> en Estados Unidos y para
+                                <a href="http://measuredmedium.com/">Measured Medium</a>. Mi interés y mi experiencia
+                                es el desarrollo de web y móvil full stack como Front-end
+                                con Javascript. Me apasiona desarrollar software,
+                                escribir código&nbsp;y&nbsp;enseñar lo que aprendo
+                                día a día.</p>
+                            <p style="text-align: justify;">También he trabajado como profesor en diferentes universidades
+                                en Medellín Colombia, con tematicas&nbsp;relacionadas
+                                con la Inteligencia Artificial, Bases de datos, programación
+                                orientada a objetos, minería de datos, desarrollo
+                                de software, desarrollo móvil y desarrollo web.</p>
+                            <p style="text-align: justify;">Me encanta escribir&nbsp;código rápido y prototipar de
+                                una manera accelerada&nbsp;si quieres ver que&nbsp;hago
+                                día a día puedes darle un vistazo a mi codepen:&nbsp;
+                                <a
+                                    href="https://codepen.io/seagomezar/">https://codepen.io/seagomezar/</a>.</p>
+                            <p style="text-align: justify;">Todos los días trato de crear o participar en proyectos,
+                                la mayoría open source, así que puede chequear mi
+                                GitHub:&nbsp;
+                                <a href="https://github.com/seagomezar">https://github.com/seagomezar</a>.</p>
+                            <p style="text-align: justify;">Mi áreas de investigación académica&nbsp;son: Ingeniería
+                                de software, Ingeniería de requisitos, procesamiento
+                                del lenguaje natural, Ontologías, Bases De Datos,
+                                &nbsp;Machine Learning, Seguimiento de trayectorias&nbsp;y
+                                Modelamiento matemático de formaciones.</p>
+                            <p style="text-align: justify;">Estas son algunas de mis publicaciones académicas mas
+                                recientes:</p>
+                            <ul>
+                                <li style="text-align: left;">
+                                    <a href="http://revistas.unipamplona.edu.co/ojs_viceinves/index.php/RCTA/article/view/288/361"
+                                        target="_blank" rel="noopener">Caracterización de los elementos del diagrama
+                                        de objetivos de KAOS a partir de lenguaje
+                                        natural</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.redalyc.org/articulo.oa?id=47730923003"
+                                        target="_blank" rel="noopener">Analysis and Detection in V-Formations with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.hindawi.com/journals/aaa/2014/241684/"
+                                        target="_blank" rel="noopener">Identification of V-Formations and Circular and
+                                        Doughnut Formations in a Set of Moving Entities
+                                        with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.revistasiush.com/index.php/quid/article/download/71/33"
+                                        target="_blank" rel="noopener">Using ontologies for disambiguation of software
+                                        artifacts. in software requirements elicitation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.scielo.cl/scielo.php?pid=S0718-33052015000100007&amp;script=sci_arttext&amp;tlng=e"
+                                        target="_blank" rel="noopener">Extraction of goals and their classification
+                                        in the KAOS model using natural&nbsp;language
+                                        processing</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://link.springer.com/chapter/10.1007/978-3-319-06764-3_5#page-1"
+                                        target="_blank" rel="noopener">Obtaining Agents and Entities from Natural Language</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.enggjournals.com/ijet/docs/IJET14-06-06-128.pdf">Filtering Word Senses Using the Least Squares
+                                        Technique for Word Sense Disambiguation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://revistavirtual.ucn.edu.co/index.php/RevistaUCN/article/view/707/1234">Un modelo de procesamiento de lenguaje natural
+                                        para la&nbsp;detección de errores en requisitos
+                                        de software</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- .entry-content -->
+                </article>
+                <!-- #post-## -->
+            </main>
+        </div>
+    </div>
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover-v1.2.0.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-9mnrhgp6lyjkxpqnqtuo1xev1egf2hnkbf3shwp4sqwnee1molrmgznbmvhm.min.js"></script>
+<!--SCRIPTS END-->
+
+    
+        <script>
+             var disqus_config = function () {
+                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/';
+                 
+                    this.page.identifier = 'solucion-al-problema-de-las-torres-de-hanoi-usando-pddl/';
+                 
+             };
+            (function() {
+                var d = document, s = d.createElement('script');
+                var disqus_shortname = 'sebastiangomez';
+                s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+    
+
+
+
+    <script>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+    .then(function () {console.log('ServiceWorker Register Successfully.')})
+    .catch(function (e) {console.error(e)});
+}
+</script></body>
+</html>

@@ -1,0 +1,673 @@
+
+<!DOCTYPE html>
+<html lang="es">
+    
+<head><link rel=manifest href=/manifest.json>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Sebastian Gomez">
+    <title>Conectar y usar Mandrill con Laravel 5 - Sebastian Gomez</title>
+    <meta name="author" content="Sebastian Gomez">
+    
+        <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
+    
+    
+        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Una de las grandes necesidades que nos encontramos al realizar cualquier tipo de aplicación es la de enviar emails desde nuestra aplicación. Esto es un problema bastante común que nos plantea distintos enfoques. Uno de ellos es si tercerizar el sistema de envío de e-mails, o si desarrollamos nuestro propio sistema de envío y seguimiento de emails. En este sencillo post muestro como enviar emails usando la API de Mandrill desde Laravel (concretamente estoy usando Laravel 5.1 para algunos de mis proyectos). Antes de empezar necesitamos entender que es Mandrill:Se trata de un servicio de distribución de correo transaccional que permite el envío de hasta 12.000 correos electrónicos por mes de manera gratuita. Si se necesita más, hay varias opciones a precios asequibles. Mandrill brinda soporte para registros SPF y DKIM que garantizan que su correo electrónico no será considerado como spam por la mayor parte de los servicios de e-mail. Además, permite el seguimiento de estados de correo electrónico, como enviar, rebotados, recibidas, hecho clic, marcados como spam, etc. También es compatible con las plantillas y etiquetas especiales para las pruebas A / B, lo cual siempre es una ventaja. (Tomado de: http://altoros.com.ar/blog/mandrill-servidor-smtp-gratuito-aplicaciones/)\nAdicionalmente ofrece soporte para ser usado via API por diferentes plataformas y lenguajes de programación, entre ellos PHP, RUBY, PYTHON, NODEJS  y JAVASCRIPT. Empecemos, el ejemplo que haremos consistirá en enviar un email via Mandrill APP desde Laravel 5. Para ello necesitamos tener una cuenta en mandrillAPP. Una vez allí iremos a la pestaña Settings y se nos mostrará un botón en la parte inferior desde donde podremos crear nuestra API key. (Para esto ya deberías tener configurado tu cuenta de correo y servidor SMTP).  Luego de esto iremos hasta la pestaña Outbounds y la tab “templates”. Allí crearemos nuestro template (haciendo click en el botón, “+create new template”) en este caso haremos el simple “Hola mundo”.  Al finalizar haremos click en publish. eso es todo lo que necesitamos del lado de Mandrill ahora pasemonos a nuestro proyecto de laravel. Voy a suponer que ya tienes un proyecto de Laravel al menos con un controlador y una ruta que puedas usar en mi caso tengo un controller llamado UsersController el cual tiene un solo método llamado welcomeEmail y cuya Ruta es http://localhost/my-proyecto/test_email por tanto al acceder a esa ruta estaría llegando inmediatamente a este método. Ahora bien lo primero que necesitamos para poder acceder a la API de Mandrill desde laravel son la librería de Mandrill y una librería llamada Weblee que nos facilitará el acceso, dicho esto nuestro composer.json debería quedar de la siguiente manera (puede variar segun tu propio proyecto):\njs1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556{\t\"name\": \"laravel/laravel\",\t\"description\": \"The Laravel Framework.\",\t\"keywords\": \\[\"framework\", \"laravel\"\\],\t\"license\": \"MIT\",\t\"type\": \"project\",\t\"require\": {\t\t\"php\": \"&gt;=5.5.9\",\t\t\"laravel/framework\": \"5.1.*\",\t\t\"illuminate/html\": \"~5.0\",\t\t\"intervention/image\":\"2.*\",\t\t\"barryvdh/laravel-cors\": \"0.5.x@dev\",\t\t\"orangehill/iseed\": \"dev-master\",\t\t\"weblee/mandrill\": \"dev-master\",\t\t\"mandrill/mandrill\": \"1.0.*\"\t},\t\"require-dev\": {\t\t\"fzaninotto/faker\": \"~1.4\",\t\t\"mockery/mockery\": \"0.9.*\",\t\t\"phpunit/phpunit\": \"~4.0\",\t\t\"phpspec/phpspec\": \"~2.1\"\t},\t\"autoload\": {\t\t\"classmap\": \\[\t\t\t\"database\",\t\t\t\"app/Http/Controllers\"\t\t\\],\t\t\"psr-4\": {\t\t\t\"App\\\\\\\": \"app/\"\t\t}\t},\t\"autoload-dev\": {\t\t\"classmap\": \\[\t\t\t\"tests/TestCase.php\"\t\t\\]\t},\t\"scripts\": {\t\t\"post-install-cmd\": \\[\t\t\t\"php artisan clear-compiled\",\t\t\t\"php artisan optimize\"\t\t\\],\t\t\"post-update-cmd\": \\[\t\t\t\"php artisan clear-compiled\",\t\t\t\"php artisan optimize\"\t\t\\],\t\t\"post-create-project-cmd\": \\[\t\t\t\"php -r \\\\\"copy('.env.example', '.env');\\\\\"\",\t\t\t\"php artisan key:generate\"\t\t\\]\t},\t\"config\": {\t\t\"preferred-install\": \"dist\"\t},\t\"minimum-stability\": \"dev\",\t\"prefer-stable\": true}\nUna vez que hagamos esto debemos correr nuestro comando composer update para que se instalen dichas librerías. Ahora necesitamos configurar nuestro archivo config/mail.php con nuestras credenciales(en caso de que no lo hayas hecho) y debemos actualizar nuestro archivo config/services.php con nuestra mandrill API key:\njs123'mandrill' =&gt; \\[      'secret' =&gt; env('MANDRILL_KEY'),  \\],\nAdicionalmente debemos agregar lo providers de las librerias añadidas:\njs123456789'providers' =&gt; \\[\t......\t'Weblee\\\\Mandrill\\\\MandrillServiceProvider'\\],'aliases' =&gt; \\[\t......\t'MandrillMail'  =&gt; 'Weblee\\\\Mandrill\\\\MandrillFacade'\\]\nBien, hecho lo anterior tenemos listo nuestra app de Laravel para usar la API de Mandrill desde el controller, simplemente nos queda incluir el NameSpace en el encabezado de nuestro controller use Weblee\\Mandrill\\Mail; y creamos las siguientes dos funciones en nuestro controller:\nphp12345678910111213141516171819202122232425262728293031323334353637383940/* Send Welcome Email throught mandriall APP* https://mandrillapp.com/api/docs/messages.php.html* @param  int  $activationLink* @param  int  $userEmail* @param  int  $userName* @return Response*/private function welcomeEmail($userEmail,$userName){\ttry{\t\t$template_name = 'hola mundo';\t\t$template_content = array(\t\t\tarray(\t\t\t\t'name' =&gt; 'test',\t\t\t\t'content' =&gt; 'test'\t\t\t)\t\t);\t\t$message = array(\t\t\t'to' =&gt; array(\t\t\t\tarray(\t\t\t\t\t'email' =&gt;\t$userEmail,\t\t\t\t\t'name' \t=&gt; \t$userName,\t\t\t\t\t'type' \t=&gt; 'to'\t\t\t\t)\t\t\t)\t\t);\t\t$result = \\\\MandrillMail::messages()-&gt;sendTemplate($template\\_name, $template\\_content, $message);\t\tif($result\\[0\\]\\[\"status\"\\]==\"sent\" AND !$result\\[0\\]\\[\"reject_reason\"\\]){\t\t\treturn true;\t\t}\t\telse{\t\t\treturn false;\t\t}\t}\tcatch(Exeption $e){\t\treturn false;\t}}public function testEmail(){\techo $this-&gt;welcomeEmail(\"example@gmail.com\",\"test\");}\nEn ocaciones algunas personas se pueden encontrar con errores de certificado SSL de Mandrill, esto se debe a que probablemente no estan usando el protocolo HTTPS, esto se soluciona bastante facil al editar el archivo mandrill.php en la linea 65 añadiendo las siguientes dos lineas. curl_setopt($this-&gt;ch, CURLOPT_SSL_VERIFYHOST, 0); curl_setopt($this-&gt;ch, CURLOPT_SSL_VERIFYPEER, 0); Una vez hecho esto tendremos conectado laravel con Mandrill y podremos enviar los emails de nuestra APP atraves de un Servidor especializado de correos con todas las características que éste ofrece.\n","dateCreated":"2015-06-17T15:09:12-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-06-17T15:09:12-05:00","description":"Una de las grandes necesidades que nos encontramos al realizar cualquier tipo de aplicación es la de enviar emails desde nuestra aplicación. Esto es un problema bastante común que nos plantea distintos enfoques. Uno de ellos es si tercerizar el sistema de envío de e-mails, o si desarrollamos nuestro propio sistema de envío y seguimiento de emails. En este sencillo post muestro como enviar emails usando la API de Mandrill desde Laravel (concretamente estoy usando Laravel 5.1 para algunos de mis proyectos). Antes de empezar necesitamos entender que es Mandrill:","headline":"Conectar y usar Mandrill con Laravel 5","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/","keywords":"Desarrollo Web, API, Backend, Laravel, Laravel5, Mandrill, PHP"}</script>
+    <meta name="description" content="Una de las grandes necesidades que nos encontramos al realizar cualquier tipo de aplicación es la de enviar emails desde nuestra aplicación. Esto es un problema bastante común que nos plantea distinto">
+<meta name="keywords" content="Desarrollo Web,API,Backend,Laravel,Laravel5,Mandrill,PHP">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Conectar y usar Mandrill con Laravel 5">
+<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/index.html">
+<meta property="og:site_name" content="Sebastian Gomez">
+<meta property="og:description" content="Una de las grandes necesidades que nos encontramos al realizar cualquier tipo de aplicación es la de enviar emails desde nuestra aplicación. Esto es un problema bastante común que nos plantea distinto">
+<meta property="og:locale" content="es">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/apiKeyMadrill.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/mandrillHolaMundo-300x123.png">
+<meta property="og:updated_time" content="2018-07-09T18:54:39.549Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Conectar y usar Mandrill con Laravel 5">
+<meta name="twitter:description" content="Una de las grandes necesidades que nos encontramos al realizar cualquier tipo de aplicación es la de enviar emails desde nuestra aplicación. Esto es un problema bastante común que nos plantea distinto">
+<meta name="twitter:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/apiKeyMadrill.png">
+<meta name="twitter:creator" content="@sebasgojs">
+    
+        <link rel="publisher" href="https://plus.google.com/+SebastianGomezFrontEnd"/>
+    
+    
+        
+    
+    
+        <meta property="og:image" content="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=640"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-5pavynit182cxzgycpqavetpez2yhfpthd7iavub2bczfzdrk7zx7lnrfejr.min.css">
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-63483506-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Sebastian Gomez</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=90" alt="Foto de autor"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=110" alt="Foto de autor"/>
+                </a>
+                <h4 class="sidebar-profile-name">Sebastian Gomez</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>Mi nombre es Sebastián Gómez, soy ingeniero de sistemas e Informática y Magister en Ingeniería de Sistemas de la Universidad Nacional de Colombia. Actualmente trabajo en Globant como Web UI Developer con énfasis en aplicaciones híbridas y cross compiladas. Soy el organizador del Google Developers Group de Medellín, así que contactame si quieres dar alguna charla o participar actuamente de esta comunidad.</p>
+</h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Inicio"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Inicio</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="Categorías"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Categorías</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="Etiquetas"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Etiquetas</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="Archivos"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Archivos</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-google-search"
+                             href="#search"
+                            
+                            title="Buscar"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Buscar</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="Sobre mí"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Sobre mí</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/seagomezar" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/sebasgojs" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/u/1/+SebastianGomezFrontEnd" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/sebastian-gomez-frontend/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            Conectar y usar Mandrill con Laravel 5
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2015-06-17T15:09:12-05:00">
+	
+		    17 jun. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Laravel/">Laravel</a>
+
+
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>Una de las grandes necesidades que nos encontramos al realizar cualquier tipo de aplicación es la de enviar emails desde nuestra aplicación. Esto es un problema bastante común que nos plantea distintos enfoques. Uno de ellos es si tercerizar el sistema de envío de e-mails, o si desarrollamos nuestro propio sistema de envío y seguimiento de emails. En este sencillo post muestro como enviar emails usando la API de Mandrill desde Laravel (concretamente estoy usando Laravel 5.1 para algunos de mis proyectos). Antes de empezar necesitamos entender que es Mandrill:<br><a id="more"></a><br>Se trata de un servicio de distribución de correo transaccional que permite el envío de hasta 12.000 correos electrónicos por mes de manera gratuita. Si se necesita más, hay varias opciones a precios asequibles. Mandrill brinda soporte para registros SPF y DKIM que garantizan que su correo electrónico no será considerado como spam por la mayor parte de los servicios de e-mail. Además, permite el seguimiento de estados de correo electrónico, como enviar, rebotados, recibidas, hecho clic, marcados como spam, etc. También es compatible con las plantillas y etiquetas especiales para las pruebas A / B, lo cual siempre es una ventaja. (Tomado de:<a href="http://altoros.com.ar/blog/mandrill-servidor-smtp-gratuito-aplicaciones/" target="_blank" rel="noopener"> http://altoros.com.ar/blog/mandrill-servidor-smtp-gratuito-aplicaciones/</a>)</p>
+<p>Adicionalmente ofrece soporte para ser usado via API por diferentes plataformas y lenguajes de programación, entre ellos PHP, RUBY, PYTHON, NODEJS  y JAVASCRIPT. Empecemos, el ejemplo que haremos consistirá en enviar un email via Mandrill APP desde Laravel 5. Para ello necesitamos tener una cuenta en <a href="https://mandrillapp.com/" target="_blank" rel="noopener">mandrillAPP</a>. Una vez allí iremos a la pestaña Settings y se nos mostrará un botón en la parte inferior desde donde podremos crear nuestra API key. (Para esto ya deberías tener configurado tu cuenta de correo y servidor SMTP). <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/apiKeyMadrill.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/apiKeyMadrill.png" alt="apiKeyMadrill"></a> Luego de esto iremos hasta la pestaña Outbounds y la tab “templates”. Allí crearemos nuestro template (haciendo click en el botón, “+create new template”) en este caso haremos el simple “Hola mundo”. <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/mandrillHolaMundo.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/mandrillHolaMundo-300x123.png" alt="mandrillHolaMundo"></a> Al finalizar haremos click en publish. eso es todo lo que necesitamos del lado de Mandrill ahora pasemonos a nuestro proyecto de laravel. Voy a suponer que ya tienes un proyecto de Laravel al menos con un controlador y una ruta que puedas usar en mi caso tengo un controller llamado UsersController el cual tiene un solo método llamado welcomeEmail y cuya Ruta es <a href="http://localhost/my-proyecto/test_email" target="_blank" rel="noopener">http://localhost/my-proyecto/test_email</a> por tanto al acceder a esa ruta estaría llegando inmediatamente a este método. Ahora bien lo primero que necesitamos para poder acceder a la API de Mandrill desde laravel son la librería de Mandrill y una librería llamada Weblee que nos facilitará el acceso, dicho esto nuestro composer.json debería quedar de la siguiente manera (puede variar segun tu propio proyecto):</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">{</span><br><span class="line">	<span class="string">"name"</span>: <span class="string">"laravel/laravel"</span>,</span><br><span class="line">	<span class="string">"description"</span>: <span class="string">"The Laravel Framework."</span>,</span><br><span class="line">	<span class="string">"keywords"</span>: \[<span class="string">"framework"</span>, <span class="string">"laravel"</span>\],</span><br><span class="line">	<span class="string">"license"</span>: <span class="string">"MIT"</span>,</span><br><span class="line">	<span class="string">"type"</span>: <span class="string">"project"</span>,</span><br><span class="line">	<span class="string">"require"</span>: {</span><br><span class="line">		<span class="string">"php"</span>: <span class="string">"&gt;=5.5.9"</span>,</span><br><span class="line">		<span class="string">"laravel/framework"</span>: <span class="string">"5.1.*"</span>,</span><br><span class="line">		<span class="string">"illuminate/html"</span>: <span class="string">"~5.0"</span>,</span><br><span class="line">		<span class="string">"intervention/image"</span>:<span class="string">"2.*"</span>,</span><br><span class="line">		<span class="string">"barryvdh/laravel-cors"</span>: <span class="string">"0.5.x@dev"</span>,</span><br><span class="line">		<span class="string">"orangehill/iseed"</span>: <span class="string">"dev-master"</span>,</span><br><span class="line">		<span class="string">"weblee/mandrill"</span>: <span class="string">"dev-master"</span>,</span><br><span class="line">		<span class="string">"mandrill/mandrill"</span>: <span class="string">"1.0.*"</span></span><br><span class="line">	},</span><br><span class="line">	<span class="string">"require-dev"</span>: {</span><br><span class="line">		<span class="string">"fzaninotto/faker"</span>: <span class="string">"~1.4"</span>,</span><br><span class="line">		<span class="string">"mockery/mockery"</span>: <span class="string">"0.9.*"</span>,</span><br><span class="line">		<span class="string">"phpunit/phpunit"</span>: <span class="string">"~4.0"</span>,</span><br><span class="line">		<span class="string">"phpspec/phpspec"</span>: <span class="string">"~2.1"</span></span><br><span class="line">	},</span><br><span class="line">	<span class="string">"autoload"</span>: {</span><br><span class="line">		<span class="string">"classmap"</span>: \[</span><br><span class="line">			<span class="string">"database"</span>,</span><br><span class="line">			<span class="string">"app/Http/Controllers"</span></span><br><span class="line">		\],</span><br><span class="line">		<span class="string">"psr-4"</span>: {</span><br><span class="line">			<span class="string">"App\\\": "</span>app/<span class="string">"</span></span><br><span class="line"><span class="string">		}</span></span><br><span class="line"><span class="string">	},</span></span><br><span class="line"><span class="string">	"</span>autoload-dev<span class="string">": {</span></span><br><span class="line"><span class="string">		"</span>classmap<span class="string">": \[</span></span><br><span class="line"><span class="string">			"</span>tests/TestCase.php<span class="string">"</span></span><br><span class="line"><span class="string">		\]</span></span><br><span class="line"><span class="string">	},</span></span><br><span class="line"><span class="string">	"</span>scripts<span class="string">": {</span></span><br><span class="line"><span class="string">		"</span>post-install-cmd<span class="string">": \[</span></span><br><span class="line"><span class="string">			"</span>php artisan clear-compiled<span class="string">",</span></span><br><span class="line"><span class="string">			"</span>php artisan optimize<span class="string">"</span></span><br><span class="line"><span class="string">		\],</span></span><br><span class="line"><span class="string">		"</span>post-update-cmd<span class="string">": \[</span></span><br><span class="line"><span class="string">			"</span>php artisan clear-compiled<span class="string">",</span></span><br><span class="line"><span class="string">			"</span>php artisan optimize<span class="string">"</span></span><br><span class="line"><span class="string">		\],</span></span><br><span class="line"><span class="string">		"</span>post-create-project-cmd<span class="string">": \[</span></span><br><span class="line"><span class="string">			"</span>php -r \\<span class="string">"copy('.env.example', '.env');\\"</span><span class="string">",</span></span><br><span class="line"><span class="string">			"</span>php artisan key:generate<span class="string">"</span></span><br><span class="line"><span class="string">		\]</span></span><br><span class="line"><span class="string">	},</span></span><br><span class="line"><span class="string">	"</span>config<span class="string">": {</span></span><br><span class="line"><span class="string">		"</span>preferred-install<span class="string">": "</span>dist<span class="string">"</span></span><br><span class="line"><span class="string">	},</span></span><br><span class="line"><span class="string">	"</span>minimum-stability<span class="string">": "</span>dev<span class="string">",</span></span><br><span class="line"><span class="string">	"</span>prefer-stable<span class="string">": true</span></span><br><span class="line"><span class="string">}</span></span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Una vez que hagamos esto debemos correr nuestro comando composer update para que se instalen dichas librerías. Ahora necesitamos configurar nuestro archivo config/mail.php con nuestras credenciales(en caso de que no lo hayas hecho) y debemos actualizar nuestro archivo config/services.php con nuestra mandrill API key:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'mandrill'</span> =&gt; \[</span><br><span class="line">      <span class="string">'secret'</span> =&gt; env(<span class="string">'MANDRILL_KEY'</span>),</span><br><span class="line">  \],</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Adicionalmente debemos agregar lo providers de las librerias añadidas:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'providers'</span> =&gt; \[</span><br><span class="line">	......</span><br><span class="line">	<span class="string">'Weblee\\Mandrill\\MandrillServiceProvider'</span></span><br><span class="line">\],</span><br><span class="line"></span><br><span class="line"><span class="string">'aliases'</span> =&gt; \[</span><br><span class="line">	......</span><br><span class="line">	<span class="string">'MandrillMail'</span>  =&gt; <span class="string">'Weblee\\Mandrill\\MandrillFacade'</span></span><br><span class="line">\]</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Bien, hecho lo anterior tenemos listo nuestra app de Laravel para usar la API de Mandrill desde el controller, simplemente nos queda incluir el NameSpace en el encabezado de nuestro controller use Weblee\Mandrill\Mail; y creamos las siguientes dos funciones en nuestro controller:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">php</li></ul></figcaption><div class="tabs-content"><figure class="highlight php" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Send Welcome Email throught mandriall APP</span></span><br><span class="line"><span class="comment">* https://mandrillapp.com/api/docs/messages.php.html</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span>  int  $activationLink</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span>  int  $userEmail</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span>  int  $userName</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span> Response</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">welcomeEmail</span><span class="params">($userEmail,$userName)</span></span>{</span><br><span class="line">	<span class="keyword">try</span>{</span><br><span class="line">		$template_name = <span class="string">'hola mundo'</span>;</span><br><span class="line">		$template_content = <span class="keyword">array</span>(</span><br><span class="line">			<span class="keyword">array</span>(</span><br><span class="line">				<span class="string">'name'</span> =&gt; <span class="string">'test'</span>,</span><br><span class="line">				<span class="string">'content'</span> =&gt; <span class="string">'test'</span></span><br><span class="line">			)</span><br><span class="line">		);</span><br><span class="line">		$message = <span class="keyword">array</span>(</span><br><span class="line">			<span class="string">'to'</span> =&gt; <span class="keyword">array</span>(</span><br><span class="line">				<span class="keyword">array</span>(</span><br><span class="line">					<span class="string">'email'</span> =&gt;	$userEmail,</span><br><span class="line">					<span class="string">'name'</span> 	=&gt; 	$userName,</span><br><span class="line">					<span class="string">'type'</span> 	=&gt; <span class="string">'to'</span></span><br><span class="line">				)</span><br><span class="line">			)</span><br><span class="line">		);</span><br><span class="line">		$result = \\MandrillMail::messages()-&gt;sendTemplate($template\_name, $template\_content, $message);</span><br><span class="line">		<span class="keyword">if</span>($result\[<span class="number">0</span>\]\[<span class="string">"status"</span>\]==<span class="string">"sent"</span> <span class="keyword">AND</span> !$result\[<span class="number">0</span>\]\[<span class="string">"reject_reason"</span>\]){</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">		}</span><br><span class="line">		<span class="keyword">else</span>{</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">		}</span><br><span class="line">	}</span><br><span class="line">	<span class="keyword">catch</span>(Exeption $e){</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">	}</span><br><span class="line">}</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">testEmail</span><span class="params">()</span></span>{</span><br><span class="line">	<span class="keyword">echo</span> <span class="keyword">$this</span>-&gt;welcomeEmail(<span class="string">"example@gmail.com"</span>,<span class="string">"test"</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>En ocaciones algunas personas se pueden encontrar con errores de certificado SSL de Mandrill, esto se debe a que probablemente no estan usando el protocolo HTTPS, esto se soluciona bastante facil al editar el archivo mandrill.php en la linea 65 añadiendo las siguientes dos lineas. curl_setopt($this-&gt;ch, CURLOPT_SSL_VERIFYHOST, 0); curl_setopt($this-&gt;ch, CURLOPT_SSL_VERIFYPEER, 0); Una vez hecho esto tendremos conectado laravel con Mandrill y podremos enviar los emails de nuestra APP atraves de un Servidor especializado de correos con todas las características que éste ofrece.</p>
+
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">ETIQUETADO EN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/API/">API</a> <a class="tag tag--primary tag--small t-link" href="/tags/Backend/">Backend</a> <a class="tag tag--primary tag--small t-link" href="/tags/Desarrollo-Web/">Desarrollo Web</a> <a class="tag tag--primary tag--small t-link" href="/tags/Laravel/">Laravel</a> <a class="tag tag--primary tag--small t-link" href="/tags/Laravel5/">Laravel5</a> <a class="tag tag--primary tag--small t-link" href="/tags/Mandrill/">Mandrill</a> <a class="tag tag--primary tag--small t-link" href="/tags/PHP/">PHP</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/como-crear-espectaculares-presentaciones-usando-html-y-css/" data-tooltip="Como crear espectaculares presentaciones usando HTML y CSS" aria-label="ANTERIOR: Como crear espectaculares presentaciones usando HTML y CSS">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/como-consumir-apis-rest-usando-angularjs/" data-tooltip="Como consumir APIs REST usando AngularJS" aria-label="SIGUIENTE: Como consumir APIs REST usando AngularJS">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+                <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Sebastian Gomez. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/como-crear-espectaculares-presentaciones-usando-html-y-css/" data-tooltip="Como crear espectaculares presentaciones usando HTML y CSS" aria-label="ANTERIOR: Como crear espectaculares presentaciones usando HTML y CSS">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/como-consumir-apis-rest-usando-angularjs/" data-tooltip="Como consumir APIs REST usando AngularJS" aria-label="SIGUIENTE: Como consumir APIs REST usando AngularJS">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/">
+                    <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+    
+        
+            
+                
+    <div id="about">
+        <div id="about-card">
+            <div id="about-btn-close">
+                <i class="fa fa-remove"></i>
+            </div>
+            <main id="main" class="site-main" role="main" style="margin-left: 1em; margin-right: 1em; line-height: 24px; text-rendering: optimizelegibility;">
+                <article id="post-92" class="post-92 page type-page status-publish hentry">
+                    <div class="post-inner-content well">
+                        <header class="entry-header">
+                            <h1 class="entry-title">Sobre mí</h1>
+                        </header>
+                        <!-- .entry-header -->
+                        <div class="entry-content">
+                            <p style="text-align: justify;">
+                                <img
+                                    src="../assets/images/me.png"
+                                    alt="sebastian" width="205" height="300" srcset="../assets/images/me.png"
+                                    sizes="(max-width: 205px) 100vw, 205px"
+                                    style="float: left; margin-right: 1em;">Mi nombre es Sebastián Gómez, soy ingeniero de sistemas
+                                e Informática y Magister en Ingeniería de Sistemas
+                                de la Universidad Nacional de Colombia.</p>
+                            <p style="text-align: justify;">Actualmente trabajo en
+                                <a href="https://www.globant.com/">Globant</a> como Web UI Developer con énfasis en
+                                aplicaciones híbridas y cross compiladas. Soy el
+                                organizador del
+                                <a href="https://www.meetup.com/es-ES/GDG-Medellin">Google Developers Group de Medellín</a>, así que
+                                contactame si quieres dar alguna charla o participar
+                                actuamente de esta comunidad.</p>
+                            <p style="text-align: justify;">He participado en una Startup Colombiana&nbsp;llamada
+                                SponzorMe al lado de
+                                <a href="https://www.carlosrojasblog.com/">Carlos Rojas</a> y fuí participante de
+                                <a href="http://www.startupchile.org/">Startup Chile</a>&nbsp;a pesar de no haber continuado
+                                con esta startup me apasiona el emprendimiento y
+                                me gusta aconsejar y ayudar startups como mentor
+                                técnico. También he trabajado en empresas Americanas
+                                como
+                                <a href="https://studiohyperset.com/">StudioHyperset</a> en Estados Unidos y para
+                                <a href="http://measuredmedium.com/">Measured Medium</a>. Mi interés y mi experiencia
+                                es el desarrollo de web y móvil full stack como Front-end
+                                con Javascript. Me apasiona desarrollar software,
+                                escribir código&nbsp;y&nbsp;enseñar lo que aprendo
+                                día a día.</p>
+                            <p style="text-align: justify;">También he trabajado como profesor en diferentes universidades
+                                en Medellín Colombia, con tematicas&nbsp;relacionadas
+                                con la Inteligencia Artificial, Bases de datos, programación
+                                orientada a objetos, minería de datos, desarrollo
+                                de software, desarrollo móvil y desarrollo web.</p>
+                            <p style="text-align: justify;">Me encanta escribir&nbsp;código rápido y prototipar de
+                                una manera accelerada&nbsp;si quieres ver que&nbsp;hago
+                                día a día puedes darle un vistazo a mi codepen:&nbsp;
+                                <a
+                                    href="https://codepen.io/seagomezar/">https://codepen.io/seagomezar/</a>.</p>
+                            <p style="text-align: justify;">Todos los días trato de crear o participar en proyectos,
+                                la mayoría open source, así que puede chequear mi
+                                GitHub:&nbsp;
+                                <a href="https://github.com/seagomezar">https://github.com/seagomezar</a>.</p>
+                            <p style="text-align: justify;">Mi áreas de investigación académica&nbsp;son: Ingeniería
+                                de software, Ingeniería de requisitos, procesamiento
+                                del lenguaje natural, Ontologías, Bases De Datos,
+                                &nbsp;Machine Learning, Seguimiento de trayectorias&nbsp;y
+                                Modelamiento matemático de formaciones.</p>
+                            <p style="text-align: justify;">Estas son algunas de mis publicaciones académicas mas
+                                recientes:</p>
+                            <ul>
+                                <li style="text-align: left;">
+                                    <a href="http://revistas.unipamplona.edu.co/ojs_viceinves/index.php/RCTA/article/view/288/361"
+                                        target="_blank" rel="noopener">Caracterización de los elementos del diagrama
+                                        de objetivos de KAOS a partir de lenguaje
+                                        natural</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.redalyc.org/articulo.oa?id=47730923003"
+                                        target="_blank" rel="noopener">Analysis and Detection in V-Formations with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.hindawi.com/journals/aaa/2014/241684/"
+                                        target="_blank" rel="noopener">Identification of V-Formations and Circular and
+                                        Doughnut Formations in a Set of Moving Entities
+                                        with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.revistasiush.com/index.php/quid/article/download/71/33"
+                                        target="_blank" rel="noopener">Using ontologies for disambiguation of software
+                                        artifacts. in software requirements elicitation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.scielo.cl/scielo.php?pid=S0718-33052015000100007&amp;script=sci_arttext&amp;tlng=e"
+                                        target="_blank" rel="noopener">Extraction of goals and their classification
+                                        in the KAOS model using natural&nbsp;language
+                                        processing</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://link.springer.com/chapter/10.1007/978-3-319-06764-3_5#page-1"
+                                        target="_blank" rel="noopener">Obtaining Agents and Entities from Natural Language</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.enggjournals.com/ijet/docs/IJET14-06-06-128.pdf">Filtering Word Senses Using the Least Squares
+                                        Technique for Word Sense Disambiguation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://revistavirtual.ucn.edu.co/index.php/RevistaUCN/article/view/707/1234">Un modelo de procesamiento de lenguaje natural
+                                        para la&nbsp;detección de errores en requisitos
+                                        de software</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- .entry-content -->
+                </article>
+                <!-- #post-## -->
+            </main>
+        </div>
+    </div>
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover-v1.2.0.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-9mnrhgp6lyjkxpqnqtuo1xev1egf2hnkbf3shwp4sqwnee1molrmgznbmvhm.min.js"></script>
+<!--SCRIPTS END-->
+
+    
+        <script>
+             var disqus_config = function () {
+                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/conectar-mandrill-con-laravel-5/';
+                 
+                    this.page.identifier = 'conectar-mandrill-con-laravel-5/';
+                 
+             };
+            (function() {
+                var d = document, s = d.createElement('script');
+                var disqus_shortname = 'sebastiangomez';
+                s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+    
+
+
+
+    <script>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+    .then(function () {console.log('ServiceWorker Register Successfully.')})
+    .catch(function (e) {console.error(e)});
+}
+</script></body>
+</html>

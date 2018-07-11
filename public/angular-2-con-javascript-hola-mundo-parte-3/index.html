@@ -1,0 +1,705 @@
+
+<!DOCTYPE html>
+<html lang="es">
+    
+<head><link rel=manifest href=/manifest.json>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Sebastian Gomez">
+    <title>Angular con Javascript Hola Mundo Parte 3 - Sebastian Gomez</title>
+    <meta name="author" content="Sebastian Gomez">
+    
+        <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
+    
+    
+        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"En este post construiremos una sencilla aplicación en Angular, que nos permita empezar a comprender el funcionamiento de Angular, y como usarlo. La aplicación consistirá simplemente en el típico hola mundo que es el proyecto insignia para iniciar el aprendizaje de un lenguaje de programación. \n\nRecuerda que mucha de la documentación oficial ofrecida por el equipo de Angular en su versión 2 aún se encuentra en desarrollo. Sin embargo en cualquier momento puedes ir a: Su página.\nBien, antes de empezar debemos tener instalado Node.js, ¿Porqué?, en primer lugar porque desde allí bajaremos los archivos de Angular2, y segundo porque también nos interesa obtener un live-server para desarrollar de una manera más cómoda. Este es el link para desacargar e instalar Node.js.\nLuego que tengas Node.js instalado, debemos crear la carpeta donde tendremos nuestro proyecto: en mi caso se llama hola-angular2, adentro de esta carpeta vamos a crear nuestra aplicación por tanto vamos inicializar nuestro proyecto, para ello vamos a abrir nuestra terminal, git bash o cmd y vamos a escribir:\njs1npm init -y\nLa línea anterior hace parte de la sintaxis de Node.js ya que npm significa Node Package Manager, este línea creará un archivo llamado package.json, en este archivo nosotros debemos decirle a Node.js como se llama nuestro proyecto, darle una descripción e incluir las librerías externas que necesitamos, como te sugiero que quede tu archivo es de la siguiente manera:\njs123456789101112131415161718{&nbsp; \"name\": \"hola-angular2\",&nbsp; \"version\": \"1.0.0\",&nbsp; \"description\": \"Esta es una aplicación para enseñar angular 2\",&nbsp; \"main\": \"app.js\",&nbsp; \"scripts\": {&nbsp;&nbsp;&nbsp; \"start\": \"live-server\"&nbsp; },&nbsp; \"keywords\": \\[\\],&nbsp; \"author\": \"Sebastian Gomez\",&nbsp; \"license\": \"ISC\",&nbsp; \"dependencies\": {&nbsp;&nbsp;&nbsp; \"angular2\": \"2.0.0-alpha.44\"&nbsp; },&nbsp; \"devDependencies\": {&nbsp;&nbsp;&nbsp; \"live-server\": \"^0.8.2\"&nbsp; }}\nAnalicemos con mas detalle este archivo, en la línea dos definimos el nombre de nuestro proyecto, luego una descripción, en la línea 5 definimos cual será el archivo principal de nuestra aplicación y vemos que he escrito app.js, esto quiere decir que este es el punto de entrada nuestra aplicación y luego deberemos crear este archivo, luego en la línea 6 y 7 definimos un comando de node llamado “start” eso quiere decir que luego podremos escribir npm start y node intentará ejecutar “live-server”, pero que significa live server bueno como veras en las dev dependencies ahi escribi que quiero que node descargue un paquete llamado live-server, que básicamente lo que hará será escanear el contenido de la carpeta donde este el package.json y mostrar el contenido en el navegador, esto se quedará en ejecución en busca de cambios y si algo cambia refrescará el browser automáticamente, piénsalo como un pequeño servidor que se actualiza ante cualquier cambio que haya en los archivos al interior de nuestro proyecto.\nComo vez e incluido como dependencias de nuestra aplicación linea 12 y 13, a Angujar 2 en su release (como sub-versión) 44, al estar en alpha quiere decir que aún no es la versión final pero que está lista para que los desarrolladores empiecen a aprender y a probar las funcionalidades. Una vez definamos esto en nuestro archivo package.json debemos ejecutar el siguiente mando para que NodeJs instale las dependencias:\njs1npm install\nY obtendremos un mensaje como el siguiente:\n\nBien hecho esto estamos listos para empezar a desarrollar nuestra aplicación. En primer lugar vamos a crear nuestro archivo app.js.\napp.jsjs123456789101112(function() {  var AppTitle = ng.Component({  &nbsp;&nbsp;&nbsp; selector: 'cabecera',  &nbsp;&nbsp;&nbsp; template: '&lt;h1&gt;Hola Mundo&lt;/h1&gt;'  &nbsp; })  &nbsp; .Class({  &nbsp;&nbsp;&nbsp; constructor: function () { }  &nbsp; });  document.addEventListener('DOMContentLoaded', function() {  &nbsp; ng.bootstrap(AppTitle);  });})();\nSi alguna vez trabajaste con AngularJs en su versión 1 te darás cuenta que este archivo no es parecido en nada a lo que se trabajaba en dichar versión, por tanto debemos tomarnos con calma este archivo y tratar de entenderlo, asi que trataré de explicártelo lo mas específicamente posible línea por línea.\nLínea 1: Simplemente estamos rodeando todo el código de una función IIFE, esto significa Inmediated Invoked Function Execution que como su nombre lo indica será ejecutada tan pronto el archivo sea cargado o invocado desde un archivo html.\nLínea 2: Estamos declarando un componente de Angular 2, esta es la sintaxis para declarar componentes, los componentes son porciones de Javascript que opera sobre un template específico y que son utilizados desde los archivos html con una etiqueta o selector.\nLínea 3: Será el nombre del selector o etiqueta que utilizaremos para incrustar nuestro componente en los archivos html.\nLínea 4: Es el código html que incrustaremos en los archivos html que invoquen nuestro componente desde el selector.\nLínea 6: Es una clase, si, una clase, una de las nuevas caracteristicas que tiene Angular 2 es que está Basado en el ECMA script 6 y este nuevo estandar de Javascript ya soporta la palabra Class, dentro de la Class del componente se definirá el código Javascript que quieras que controle la aplicación y como quieras que lo haga, puedes definir atributos, constructores, métodos, etc etc, si quieres puedes aplicar todo el paradigma de la programación orientada a objetos allí mismo.\nLínea 7: Como te lo prometí en la linea anterior, dentro de la clase puede crear metodos, variables y constructores, esta es la sintaxis para definir el constructor, es decir código que quieres que se ejecute cuando se cree el componente, para nuestro ejemplo está vació pero puedes escribir algo de codigo allí.\nLínea 9: Estamos añadiendo un listener al documento, es decir cuando se haya cargado todo el DOM (Document Object Model) se cargue nuestro componente, por si algun archivo .html lo invoca.\nLínea 11: Finalmente cerramos nuestra función IIFE.\nSi has entendido lo anterior, empiezas a entender Angular 2, porque esa es su filosofía, todo está basado en web components pero web components orientados a objetos, sin embargo aún nos falta algo más para tener nuestra primera versión de la aplicación funcionando y es algún html que llame nuestro componente, porque si no es así no podremos ver que es lo que hemos hecho. Para ello te invito a que crees un archivo llamado index.html que contenga lo siguiente:\napp.htmlhtml12345678910&lt;html&gt;&nbsp; &lt;head&gt;&nbsp;&nbsp;&nbsp; &lt;title&gt;Aprendiendo Angular 2&lt;/title&gt;&nbsp;&nbsp;&nbsp; &lt;script src=\"node_modules/angular2/bundles/angular2.sfx.dev.js\"&gt;&lt;/script&gt;&nbsp;&nbsp;&nbsp; &lt;script src=\"app.js\"&gt;&lt;/script&gt;&nbsp; &lt;/head&gt;&nbsp; &lt;body&gt;&nbsp;&nbsp;&nbsp; &lt;cabecera&gt;&lt;/cabecera&gt;&nbsp; &lt;/body&gt;&lt;/html&gt;\nNuevamente trataré de explicarte el código detalladamente. En la línea 4 estamos incluyendo la librería de Angular 2, si te das cuenta al haber hecho npm install, NodeJs descargó estos archivos en una carpeta node_modules y ahi encontrarás Angular2. En la línea 5 incluimos nuestro archivo app.js el que elaboramos anteriormente. Y por fin en la línea 8 hemos incluido nuestro angular component. Si guardas todo deberías tener una estructura como esta:\n\n Si es así estas listo y puedes corres el comando:\njs1npm start\nLuego de un momento te debería cargar una ventana en tu browser como la siguiente:\n\nY eso es todo, te felicito, has creado tu primera aplicación usando Angular, si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo. Este post hace parte de una serie de tutoriales sobre Angular2, a continuación te dejo los links.\nAngular 2 Parte 0\nQué es AngularJS? Parte 1\nAngularJS vs Angular? Parte 2\n","dateCreated":"2015-11-03T17:51:32-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-11-03T17:51:32-05:00","description":"En este post construiremos una sencilla aplicación en Angular, que nos permita empezar a comprender el funcionamiento de Angular, y como usarlo. La aplicación consistirá simplemente en el típico hola mundo que es el proyecto insignia para iniciar el aprendizaje de un lenguaje de programación.","headline":"Angular con Javascript Hola Mundo Parte 3","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/","keywords":"Angular, AngularJS, CSS, HTML5, Javascript, Desarrollo web","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"}</script>
+    <meta name="description" content="En este post construiremos una sencilla aplicación en Angular, que nos permita empezar a comprender el funcionamiento de Angular, y como usarlo. La aplicación consistirá simplemente en el típico hola">
+<meta name="keywords" content="Angular,AngularJS,CSS,HTML5,Javascript,Desarrollo web">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Angular con Javascript Hola Mundo Parte 3">
+<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/index.html">
+<meta property="og:site_name" content="Sebastian Gomez">
+<meta property="og:description" content="En este post construiremos una sencilla aplicación en Angular, que nos permita empezar a comprender el funcionamiento de Angular, y como usarlo. La aplicación consistirá simplemente en el típico hola">
+<meta property="og:locale" content="es">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/Angular.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h3.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h1.png">
+<meta property="og:image" content="file:///C:/Users/Sebas/AppData/Local/Temp/enhtmlclip/Image.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h2.png">
+<meta property="og:updated_time" content="2018-07-09T18:54:39.551Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Angular con Javascript Hola Mundo Parte 3">
+<meta name="twitter:description" content="En este post construiremos una sencilla aplicación en Angular, que nos permita empezar a comprender el funcionamiento de Angular, y como usarlo. La aplicación consistirá simplemente en el típico hola">
+<meta name="twitter:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/Angular.png">
+<meta name="twitter:creator" content="@sebasgojs">
+    
+        <link rel="publisher" href="https://plus.google.com/+SebastianGomezFrontEnd"/>
+    
+    
+        
+    
+    
+        <meta property="og:image" content="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=640"/>
+    
+    
+        <meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"/>
+        <meta class="swiftype" name="image" data-type="enum" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png" />
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-5pavynit182cxzgycpqavetpez2yhfpthd7iavub2bczfzdrk7zx7lnrfejr.min.css">
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-63483506-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Sebastian Gomez</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=90" alt="Foto de autor"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=110" alt="Foto de autor"/>
+                </a>
+                <h4 class="sidebar-profile-name">Sebastian Gomez</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>Mi nombre es Sebastián Gómez, soy ingeniero de sistemas e Informática y Magister en Ingeniería de Sistemas de la Universidad Nacional de Colombia. Actualmente trabajo en Globant como Web UI Developer con énfasis en aplicaciones híbridas y cross compiladas. Soy el organizador del Google Developers Group de Medellín, así que contactame si quieres dar alguna charla o participar actuamente de esta comunidad.</p>
+</h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Inicio"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Inicio</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="Categorías"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Categorías</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="Etiquetas"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Etiquetas</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="Archivos"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Archivos</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-google-search"
+                             href="#search"
+                            
+                            title="Buscar"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Buscar</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="Sobre mí"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Sobre mí</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/seagomezar" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/sebasgojs" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/u/1/+SebastianGomezFrontEnd" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/sebastian-gomez-frontend/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            Angular con Javascript Hola Mundo Parte 3
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2015-11-03T17:51:32-05:00">
+	
+		    03 nov. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Angular/">Angular</a>
+
+
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>En este post construiremos una sencilla aplicación en Angular, que nos permita empezar a comprender el funcionamiento de Angular, y como usarlo. La aplicación consistirá simplemente en el típico hola mundo que es el proyecto insignia para iniciar el aprendizaje de un lenguaje de programación. <a id="more"></a></p>
+<p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/Angular.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/Angular.png" alt="Angular"></a></p>
+<p>Recuerda que mucha de la documentación oficial ofrecida por el equipo de Angular en su versión 2 aún se encuentra en desarrollo. Sin embargo en cualquier momento puedes ir a: <a href="https://angular.io/" target="_blank" rel="noopener">Su página</a>.</p>
+<p>Bien, antes de empezar debemos tener instalado Node.js, ¿Porqué?, en primer lugar porque desde allí bajaremos los archivos de Angular2, y segundo porque también nos interesa obtener un live-server para desarrollar de una manera más cómoda. <a href="https://nodejs.org/en/" target="_blank" rel="noopener">Este es el link para desacargar e instalar Node.js</a>.</p>
+<p>Luego que tengas Node.js instalado, debemos crear la carpeta donde tendremos nuestro proyecto: en mi caso se llama hola-angular2, adentro de esta carpeta vamos a crear nuestra aplicación por tanto vamos inicializar nuestro proyecto, para ello vamos a abrir nuestra terminal, git bash o cmd y vamos a escribir:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm init -y</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>La línea anterior hace parte de la sintaxis de Node.js ya que npm significa Node Package Manager, este línea creará un archivo llamado package.json, en este archivo nosotros debemos decirle a Node.js como se llama nuestro proyecto, darle una descripción e incluir las librerías externas que necesitamos, como te sugiero que quede tu archivo es de la siguiente manera:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">{</span><br><span class="line">&nbsp; <span class="string">"name"</span>: <span class="string">"hola-angular2"</span>,</span><br><span class="line">&nbsp; <span class="string">"version"</span>: <span class="string">"1.0.0"</span>,</span><br><span class="line">&nbsp; <span class="string">"description"</span>: <span class="string">"Esta es una aplicación para enseñar angular 2"</span>,</span><br><span class="line">&nbsp; <span class="string">"main"</span>: <span class="string">"app.js"</span>,</span><br><span class="line">&nbsp; <span class="string">"scripts"</span>: {</span><br><span class="line">&nbsp;&nbsp;&nbsp; <span class="string">"start"</span>: <span class="string">"live-server"</span></span><br><span class="line">&nbsp; },</span><br><span class="line">&nbsp; <span class="string">"keywords"</span>: \[\],</span><br><span class="line">&nbsp; <span class="string">"author"</span>: <span class="string">"Sebastian Gomez"</span>,</span><br><span class="line">&nbsp; <span class="string">"license"</span>: <span class="string">"ISC"</span>,</span><br><span class="line">&nbsp; <span class="string">"dependencies"</span>: {</span><br><span class="line">&nbsp;&nbsp;&nbsp; <span class="string">"angular2"</span>: <span class="string">"2.0.0-alpha.44"</span></span><br><span class="line">&nbsp; },</span><br><span class="line">&nbsp; <span class="string">"devDependencies"</span>: {</span><br><span class="line">&nbsp;&nbsp;&nbsp; <span class="string">"live-server"</span>: <span class="string">"^0.8.2"</span></span><br><span class="line">&nbsp; }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Analicemos con mas detalle este archivo, en la línea dos definimos el nombre de nuestro proyecto, luego una descripción, en la línea 5 definimos cual será el archivo principal de nuestra aplicación y vemos que he escrito app.js, esto quiere decir que este es el punto de entrada nuestra aplicación y luego deberemos crear este archivo, luego en la línea 6 y 7 definimos un comando de node llamado “start” eso quiere decir que luego podremos escribir npm start y node intentará ejecutar “live-server”, pero que significa live server bueno como veras en las dev dependencies ahi escribi que quiero que node descargue un paquete llamado live-server, que básicamente lo que hará será escanear el contenido de la carpeta donde este el package.json y mostrar el contenido en el navegador, esto se quedará en ejecución en busca de cambios y si algo cambia refrescará el browser automáticamente, piénsalo como un pequeño servidor que se actualiza ante cualquier cambio que haya en los archivos al interior de nuestro proyecto.</p>
+<p>Como vez e incluido como dependencias de nuestra aplicación linea 12 y 13, a Angujar 2 en su release (como sub-versión) 44, al estar en alpha quiere decir que aún no es la versión final pero que está lista para que los desarrolladores empiecen a aprender y a probar las funcionalidades. Una vez definamos esto en nuestro archivo package.json debemos ejecutar el siguiente mando para que NodeJs instale las dependencias:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Y obtendremos un mensaje como el siguiente:</p>
+<p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h3.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h3.png" alt="h3"></a></p>
+<p>Bien hecho esto estamos listos para empezar a desarrollar nuestra aplicación. En primer lugar vamos a crear nuestro archivo app.js.</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><span>app.js</span><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{</span><br><span class="line">  <span class="keyword">var</span> AppTitle = ng.Component({</span><br><span class="line">  &nbsp;&nbsp;&nbsp; selector: <span class="string">'cabecera'</span>,</span><br><span class="line">  &nbsp;&nbsp;&nbsp; template: <span class="string">'&lt;h1&gt;Hola Mundo&lt;/h1&gt;'</span></span><br><span class="line">  &nbsp; })</span><br><span class="line">  &nbsp; .Class({</span><br><span class="line">  &nbsp;&nbsp;&nbsp; <span class="keyword">constructor</span>: function () { }</span><br><span class="line">  &nbsp; });</span><br><span class="line">  <span class="built_in">document</span>.addEventListener(<span class="string">'DOMContentLoaded'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>{</span><br><span class="line">  &nbsp; ng.bootstrap(AppTitle);</span><br><span class="line">  });</span><br><span class="line">})();</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Si alguna vez trabajaste con AngularJs en su versión 1 te darás cuenta que este archivo no es parecido en nada a lo que se trabajaba en dichar versión, por tanto debemos tomarnos con calma este archivo y tratar de entenderlo, asi que trataré de explicártelo lo mas específicamente posible línea por línea.</p>
+<p>Línea 1: Simplemente estamos rodeando todo el código de una función IIFE, esto significa Inmediated Invoked Function Execution que como su nombre lo indica será ejecutada tan pronto el archivo sea cargado o invocado desde un archivo html.</p>
+<p>Línea 2: Estamos declarando un componente de Angular 2, esta es la sintaxis para declarar componentes, los componentes son porciones de Javascript que opera sobre un template específico y que son utilizados desde los archivos html con una etiqueta o selector.</p>
+<p>Línea 3: Será el nombre del selector o etiqueta que utilizaremos para incrustar nuestro componente en los archivos html.</p>
+<p>Línea 4: Es el código html que incrustaremos en los archivos html que invoquen nuestro componente desde el selector.</p>
+<p>Línea 6: Es una clase, si, una clase, una de las nuevas caracteristicas que tiene Angular 2 es que está Basado en el ECMA script 6 y este nuevo estandar de Javascript ya soporta la palabra Class, dentro de la Class del componente se definirá el código Javascript que quieras que controle la aplicación y como quieras que lo haga, puedes definir atributos, constructores, métodos, etc etc, si quieres puedes aplicar todo el paradigma de la programación orientada a objetos allí mismo.</p>
+<p>Línea 7: Como te lo prometí en la linea anterior, dentro de la clase puede crear metodos, variables y constructores, esta es la sintaxis para definir el constructor, es decir código que quieres que se ejecute cuando se cree el componente, para nuestro ejemplo está vació pero puedes escribir algo de codigo allí.</p>
+<p>Línea 9: Estamos añadiendo un listener al documento, es decir cuando se haya cargado todo el DOM (Document Object Model) se cargue nuestro componente, por si algun archivo .html lo invoca.</p>
+<p>Línea 11: Finalmente cerramos nuestra función IIFE.</p>
+<p>Si has entendido lo anterior, empiezas a entender Angular 2, porque esa es su filosofía, todo está basado en web components pero web components orientados a objetos, sin embargo aún nos falta algo más para tener nuestra primera versión de la aplicación funcionando y es algún html que llame nuestro componente, porque si no es así no podremos ver que es lo que hemos hecho. Para ello te invito a que crees un archivo llamado index.html que contenga lo siguiente:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><span>app.html</span><ul class="tabs"><li class="tab active">html</li></ul></figcaption><div class="tabs-content"><figure class="highlight html" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">&nbsp; <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">&nbsp;&nbsp;&nbsp; <span class="tag">&lt;<span class="name">title</span>&gt;</span>Aprendiendo Angular 2<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">&nbsp;&nbsp;&nbsp; <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"node_modules/angular2/bundles/angular2.sfx.dev.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">&nbsp;&nbsp;&nbsp; <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"app.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">&nbsp; <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">&nbsp; <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">&nbsp;&nbsp;&nbsp; <span class="tag">&lt;<span class="name">cabecera</span>&gt;</span><span class="tag">&lt;/<span class="name">cabecera</span>&gt;</span></span><br><span class="line">&nbsp; <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Nuevamente trataré de explicarte el código detalladamente. En la línea 4 estamos incluyendo la librería de Angular 2, si te das cuenta al haber hecho npm install, NodeJs descargó estos archivos en una carpeta node_modules y ahi encontrarás Angular2. En la línea 5 incluimos nuestro archivo app.js el que elaboramos anteriormente. Y por fin en la línea 8 hemos incluido nuestro angular component. Si guardas todo deberías tener una estructura como esta:</p>
+<p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h1.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h1.png" alt="h1"></a></p>
+<p><img src="file:///C:/Users/Sebas/AppData/Local/Temp/enhtmlclip/Image.png" alt=""> Si es así estas listo y puedes corres el comando:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm start</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Luego de un momento te debería cargar una ventana en tu browser como la siguiente:</p>
+<p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h2.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/h2.png" alt="h2"></a></p>
+<p>Y eso es todo, te felicito, has creado tu primera aplicación usando Angular, si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo. Este post hace parte de una serie de tutoriales sobre Angular2, a continuación te dejo los links.</p>
+<p><a href="http://www.sebastian-gomez.com/desarrollo-web/introduccion-a-angularjs-parte-0/" target="_blank" rel="noopener">Angular 2 Parte 0</a></p>
+<p><a href="http://www.sebastian-gomez.com/desarrollo-web/angular-1-vs-angular-2-parte-2/" target="_blank" rel="noopener">Qué es AngularJS? Parte 1</a></p>
+<p><a href="http://www.sebastian-gomez.com/desarrollo-web/angular-1-vs-angular-2-parte-2/" target="_blank" rel="noopener">AngularJS vs Angular? Parte 2</a></p>
+
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">ETIQUETADO EN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/Angular/">Angular</a> <a class="tag tag--primary tag--small t-link" href="/tags/AngularJS/">AngularJS</a> <a class="tag tag--primary tag--small t-link" href="/tags/CSS/">CSS</a> <a class="tag tag--primary tag--small t-link" href="/tags/Desarrollo-web/">Desarrollo web</a> <a class="tag tag--primary tag--small t-link" href="/tags/HTML5/">HTML5</a> <a class="tag tag--primary tag--small t-link" href="/tags/Javascript/">Javascript</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/angular-2-aplicacion-que-saluda-parte-4/" data-tooltip="Angular 2 aplicación que saluda Parte 4" aria-label="ANTERIOR: Angular 2 aplicación que saluda Parte 4">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/angular-1-vs-angular-2-parte-2/" data-tooltip="AngularJS vs Angular Parte 2" aria-label="SIGUIENTE: AngularJS vs Angular Parte 2">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+                <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Sebastian Gomez. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/angular-2-aplicacion-que-saluda-parte-4/" data-tooltip="Angular 2 aplicación que saluda Parte 4" aria-label="ANTERIOR: Angular 2 aplicación que saluda Parte 4">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/angular-1-vs-angular-2-parte-2/" data-tooltip="AngularJS vs Angular Parte 2" aria-label="SIGUIENTE: AngularJS vs Angular Parte 2">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/">
+                    <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+    
+        
+            
+                
+    <div id="about">
+        <div id="about-card">
+            <div id="about-btn-close">
+                <i class="fa fa-remove"></i>
+            </div>
+            <main id="main" class="site-main" role="main" style="margin-left: 1em; margin-right: 1em; line-height: 24px; text-rendering: optimizelegibility;">
+                <article id="post-92" class="post-92 page type-page status-publish hentry">
+                    <div class="post-inner-content well">
+                        <header class="entry-header">
+                            <h1 class="entry-title">Sobre mí</h1>
+                        </header>
+                        <!-- .entry-header -->
+                        <div class="entry-content">
+                            <p style="text-align: justify;">
+                                <img
+                                    src="../assets/images/me.png"
+                                    alt="sebastian" width="205" height="300" srcset="../assets/images/me.png"
+                                    sizes="(max-width: 205px) 100vw, 205px"
+                                    style="float: left; margin-right: 1em;">Mi nombre es Sebastián Gómez, soy ingeniero de sistemas
+                                e Informática y Magister en Ingeniería de Sistemas
+                                de la Universidad Nacional de Colombia.</p>
+                            <p style="text-align: justify;">Actualmente trabajo en
+                                <a href="https://www.globant.com/">Globant</a> como Web UI Developer con énfasis en
+                                aplicaciones híbridas y cross compiladas. Soy el
+                                organizador del
+                                <a href="https://www.meetup.com/es-ES/GDG-Medellin">Google Developers Group de Medellín</a>, así que
+                                contactame si quieres dar alguna charla o participar
+                                actuamente de esta comunidad.</p>
+                            <p style="text-align: justify;">He participado en una Startup Colombiana&nbsp;llamada
+                                SponzorMe al lado de
+                                <a href="https://www.carlosrojasblog.com/">Carlos Rojas</a> y fuí participante de
+                                <a href="http://www.startupchile.org/">Startup Chile</a>&nbsp;a pesar de no haber continuado
+                                con esta startup me apasiona el emprendimiento y
+                                me gusta aconsejar y ayudar startups como mentor
+                                técnico. También he trabajado en empresas Americanas
+                                como
+                                <a href="https://studiohyperset.com/">StudioHyperset</a> en Estados Unidos y para
+                                <a href="http://measuredmedium.com/">Measured Medium</a>. Mi interés y mi experiencia
+                                es el desarrollo de web y móvil full stack como Front-end
+                                con Javascript. Me apasiona desarrollar software,
+                                escribir código&nbsp;y&nbsp;enseñar lo que aprendo
+                                día a día.</p>
+                            <p style="text-align: justify;">También he trabajado como profesor en diferentes universidades
+                                en Medellín Colombia, con tematicas&nbsp;relacionadas
+                                con la Inteligencia Artificial, Bases de datos, programación
+                                orientada a objetos, minería de datos, desarrollo
+                                de software, desarrollo móvil y desarrollo web.</p>
+                            <p style="text-align: justify;">Me encanta escribir&nbsp;código rápido y prototipar de
+                                una manera accelerada&nbsp;si quieres ver que&nbsp;hago
+                                día a día puedes darle un vistazo a mi codepen:&nbsp;
+                                <a
+                                    href="https://codepen.io/seagomezar/">https://codepen.io/seagomezar/</a>.</p>
+                            <p style="text-align: justify;">Todos los días trato de crear o participar en proyectos,
+                                la mayoría open source, así que puede chequear mi
+                                GitHub:&nbsp;
+                                <a href="https://github.com/seagomezar">https://github.com/seagomezar</a>.</p>
+                            <p style="text-align: justify;">Mi áreas de investigación académica&nbsp;son: Ingeniería
+                                de software, Ingeniería de requisitos, procesamiento
+                                del lenguaje natural, Ontologías, Bases De Datos,
+                                &nbsp;Machine Learning, Seguimiento de trayectorias&nbsp;y
+                                Modelamiento matemático de formaciones.</p>
+                            <p style="text-align: justify;">Estas son algunas de mis publicaciones académicas mas
+                                recientes:</p>
+                            <ul>
+                                <li style="text-align: left;">
+                                    <a href="http://revistas.unipamplona.edu.co/ojs_viceinves/index.php/RCTA/article/view/288/361"
+                                        target="_blank" rel="noopener">Caracterización de los elementos del diagrama
+                                        de objetivos de KAOS a partir de lenguaje
+                                        natural</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.redalyc.org/articulo.oa?id=47730923003"
+                                        target="_blank" rel="noopener">Analysis and Detection in V-Formations with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.hindawi.com/journals/aaa/2014/241684/"
+                                        target="_blank" rel="noopener">Identification of V-Formations and Circular and
+                                        Doughnut Formations in a Set of Moving Entities
+                                        with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.revistasiush.com/index.php/quid/article/download/71/33"
+                                        target="_blank" rel="noopener">Using ontologies for disambiguation of software
+                                        artifacts. in software requirements elicitation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.scielo.cl/scielo.php?pid=S0718-33052015000100007&amp;script=sci_arttext&amp;tlng=e"
+                                        target="_blank" rel="noopener">Extraction of goals and their classification
+                                        in the KAOS model using natural&nbsp;language
+                                        processing</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://link.springer.com/chapter/10.1007/978-3-319-06764-3_5#page-1"
+                                        target="_blank" rel="noopener">Obtaining Agents and Entities from Natural Language</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.enggjournals.com/ijet/docs/IJET14-06-06-128.pdf">Filtering Word Senses Using the Least Squares
+                                        Technique for Word Sense Disambiguation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://revistavirtual.ucn.edu.co/index.php/RevistaUCN/article/view/707/1234">Un modelo de procesamiento de lenguaje natural
+                                        para la&nbsp;detección de errores en requisitos
+                                        de software</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- .entry-content -->
+                </article>
+                <!-- #post-## -->
+            </main>
+        </div>
+    </div>
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover-v1.2.0.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-9mnrhgp6lyjkxpqnqtuo1xev1egf2hnkbf3shwp4sqwnee1molrmgznbmvhm.min.js"></script>
+<!--SCRIPTS END-->
+
+    
+        <script>
+             var disqus_config = function () {
+                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/';
+                 
+                    this.page.identifier = 'angular-2-con-javascript-hola-mundo-parte-3/';
+                 
+             };
+            (function() {
+                var d = document, s = d.createElement('script');
+                var disqus_shortname = 'sebastiangomez';
+                s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+    
+
+
+
+    <script>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+    .then(function () {console.log('ServiceWorker Register Successfully.')})
+    .catch(function (e) {console.error(e)});
+}
+</script></body>
+</html>

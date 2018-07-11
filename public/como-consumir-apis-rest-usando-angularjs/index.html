@@ -1,0 +1,681 @@
+
+<!DOCTYPE html>
+<html lang="es">
+    
+<head><link rel=manifest href=/manifest.json>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Sebastian Gomez">
+    <title>Como consumir APIs REST usando AngularJS - Sebastian Gomez</title>
+    <meta name="author" content="Sebastian Gomez">
+    
+        <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
+    
+    
+        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"En este pequeño post quiero mostrar un ejemplo sencillo de como usar angularJS para realizar consultas o peticiones a APIs rest propias o de terceros,  ya que hoy en día nos encontramos en pleno auge de angularJS y de las arquitecturas orientadas a servicios (Usando servicios Rest, Sobra decir que SOAP esta out). Lo primero que quiero compartir es la API que consumiremos, esta es JSONPlaceholder, allí verán una pequeña introducción de como usarla y los recursos disponible para ser accesados vía API. El ejemplo que haremos sera entonces consumir los servicios de posts, traeremos todos los posts disponibles, y también traeremos un post por id. Los pasos que seguiremos serán entonces: 1. Creación de una vista que tenga dos botones. El primer botón traerá todos los post ofrecidos por la API, y el segundo botón traerá un post especifico de acuerdo al id que ingresemos. 2. Crearemos un controlador que nos permita recibir la acción de cada uno de los botones y que sea este el encargado de llamar al servicio y recibir los datos de este para ser mostrados en la vista. 3. Crearemos el mecanismo de consumo de la API que sera una factory de angular, que nos permitirá declarar los métodos y las rutas a ser consumidas en la API. 4. Finalmente Haremos una pequeña prueba para verificar el correcto funcionamiento de esta. Eso es todo manos a la obra!!! Lo primero que haremos sera crear una estructura del proyecto como la siguiente:  Luego dentro del archivo index.html copiaremos el siguiente código html:\nhtml123456789101112131415161718192021222324252627282930313233343536&lt;!DOCTYPE html&gt;   &lt;html ng-app='myApp'&gt;\t&lt;head&gt;\t\t&lt;title&gt;&lt;/title&gt;\t\t&lt;script type=\"text/javascript\" src=\"//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js\"&gt;&lt;/script&gt;\t\t&lt;!--Controllers--&gt;\t\t&lt;script type=\"text/javascript\" src=\"controllers/testController.js\"&gt;&lt;/script&gt;\t\t&lt;!--Services--&gt;\t\t&lt;script type=\"text/javascript\" src=\"services/testService.js\"&gt;&lt;/script&gt;\t&lt;/head&gt;\t&lt;body ng-app='myApp' ng-controller=\"testController\"&gt;\t\t&lt;input type=\"submit\" value=\"Todos los posts\" ng-click=\"getAllPosts()\"/&gt;\t\t&lt;input type=\"submit\" value=\"Un post\" ng-click=\"getPost()\"/&gt;\t\t&lt;input type=\"text\" ng-model=\"post_id\" placeholder=\"inserte el id del post\"/&gt;\t\t&lt;div ng-if=\"posts.exist==1\"&gt;\t\t\t&lt;h1&gt;Lista de Posts&lt;/h1&gt;\t\t\t&lt;div ng-repeat=\"p in posts\"&gt;\t\t\t\t&lt;pre&gt;\t\t\t\t\t&lt;h5&gt; Post # { {p.id}}&lt;/h5&gt;\t\t\t\t\t&lt;h2&gt;{ {p.title}}&lt;/h2&gt;\t\t\t\t\t&lt;p&gt;{ {p.body}}&lt;/p&gt;\t\t\t\t&lt;/pre&gt;\t\t\t\t&lt;hr/&gt;\t\t\t&lt;/div&gt;\t\t&lt;/div&gt;\t\t&lt;div ng-if=\"unPost.exist==1\"&gt;\t\t\t&lt;h1&gt;Un solo post&lt;/h1&gt;\t\t\t&lt;pre&gt;\t\t\t\t&lt;h5&gt; Post # { {unPost.id}}&lt;/h5&gt;\t\t\t\t&lt;h2&gt;{ {unPost.title}}&lt;/h2&gt;\t\t\t\t&lt;p&gt;{ {unPost.body}}&lt;/p&gt;\t\t\t&lt;/pre&gt;\t\t\t&lt;hr/&gt;\t\t&lt;/div&gt;\t&lt;/body&gt;&lt;/html&gt;\nArriba en la etiqueta html tenemos el nombre de nuestra app, en este caso el nombre es myApp (esto puede ser cambiado a gusto). Como podemos ver dentro de las etiquetas  tenemos la libreria de angular incluida, para ello esta puede ser descargada via bower, o simplemente puedes linkearla directamente desde el cdn de google, accesible desde angularjs.org Luego tenemos nuestro controlador y nuestro servicio enlazado a nuestra vista. Posteriormente tenemos asociado el controlador para todo nuestro body, en nuestro caso es el testController. Dentro del body tenemos entonces dos botones y div resultado, cada botón tiene asociado un ng-click que llama directamente a cada función del controller, y el div que simplemente tiene asociado un modelo, donde seran seteados los datos. El flujo sera entonces cuando hagamos click en cualquiera de los dos botones se llamara la funcion del controller y este a su vez llamara al servicio para que consuma el método de la API destinado para esto. Pasemos al controlador\njs12345678910111213141516171819angular.module('myApp', ['testService']);angular.module('myApp').controller('testController', ['$scope','testRequest',testController]);function testController($scope, testRequest) {\t$scope.posts={};\t$scope.getAllPosts = function(){\t\ttestRequest.posts().success(function (data){\t\t\t$scope.posts=data; // Asignaremos los datos de todos los posts\t\t\t$scope.posts.exist=1;\t\t});\t}\t$scope.getPost = function(){\t\t$scope.unPost={};\t\ttestRequest.post($scope.post_id).success(function (data){\t\t\t$scope.unPost=data; // Asignaremos los datos del post\t\t\t$scope.unPost.exist=1;\t\t\t$scope.posts.exist=0;\t\t});\t}}\nEl código del controlador es relativamente sencillo, simplemente declaramos nuestro modulo y nuestro controller. Dentro tendremos dos funciones una para obtener todos los posts y otra para obtener un post con un Id especifico, luego estas funciones llaman el servicio y reciben los datos de este y es asignado a una variable dentro del scope, esto con el fin de que le controller en caso de que existan pueda devolverlos a la vista para ser mostrados. Pasemos al servicio\njs123456789101112131415angular.module('testService', [])//Declaramos el modulo.factory('testRequest', function($http) { //declaramos la factory\tvar path = \"http://jsonplaceholder.typicode.com/\";//API path\treturn {\t\t//Login\t\tposts : function(){ //Retornara la lista de posts\t\t\tglobal = $http.get(path+'posts');\t\t\treturn global;\t\t},\t\tpost : function(id){ //retornara el post por el id\t\t\tglobal = $http.get(path+'posts/'+id);\t\t\treturn global;\t\t\t}\t\t}});\nAl comienzo se declara el modulo y se crea una variable llamada PATH con el fin de que este servicio sea portable en caso de que cambie la dirección de la API. Inicialmente el servicio se declara como una factory donde tendremos dos funciones, una para cada operación. Dicha factory utiliza el metodo http de angular para que pueda crear la petición REST a la API Posteriormente están los dos métodos que hacen la petición GET a la API y retornan la respuesta al controller quien a su vez asigna las variables al SCOPE para ser usados en la vista. Hecho todo lo anterior estamos listos para probar nuestra pequeña app:\nVista Inicial\n\nLista de todos los post:\n\nVista de un solo post: \n Listo como ven es muy sencillo el consumo de APIs con angularJS, quizá hayan formas mejores de hacerlo, sin embargo esta es una forma completamente funcional y validada. Espero les sea de utilidad.\n","dateCreated":"2015-06-01T13:05:45-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-06-01T13:05:45-05:00","description":"En este pequeño post quiero mostrar un ejemplo sencillo de como usar angularJS para realizar consultas o peticiones a APIs rest propias o de terceros,","headline":"Como consumir APIs REST usando AngularJS","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/","keywords":"Desarrollo Web, AngularJS, API, Desarrollo frontend, REST","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"}</script>
+    <meta name="description" content="En este pequeño post quiero mostrar un ejemplo sencillo de como usar angularJS para realizar consultas o peticiones a APIs rest propias o de terceros,">
+<meta name="keywords" content="Desarrollo Web,AngularJS,API,Desarrollo frontend,REST">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Como consumir APIs REST usando AngularJS">
+<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/index.html">
+<meta property="og:site_name" content="Sebastian Gomez">
+<meta property="og:description" content="En este pequeño post quiero mostrar un ejemplo sencillo de como usar angularJS para realizar consultas o peticiones a APIs rest propias o de terceros,">
+<meta property="og:locale" content="es">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/estructura-del-proyecto.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/1-300x36.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/2-300x240.png">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/3-300x249.png">
+<meta property="og:updated_time" content="2018-07-09T18:54:39.549Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Como consumir APIs REST usando AngularJS">
+<meta name="twitter:description" content="En este pequeño post quiero mostrar un ejemplo sencillo de como usar angularJS para realizar consultas o peticiones a APIs rest propias o de terceros,">
+<meta name="twitter:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/estructura-del-proyecto.png">
+<meta name="twitter:creator" content="@sebasgojs">
+    
+        <link rel="publisher" href="https://plus.google.com/+SebastianGomezFrontEnd"/>
+    
+    
+        
+    
+    
+        <meta property="og:image" content="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=640"/>
+    
+    
+        <meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"/>
+        <meta class="swiftype" name="image" data-type="enum" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png" />
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-5pavynit182cxzgycpqavetpez2yhfpthd7iavub2bczfzdrk7zx7lnrfejr.min.css">
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-63483506-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Sebastian Gomez</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=90" alt="Foto de autor"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=110" alt="Foto de autor"/>
+                </a>
+                <h4 class="sidebar-profile-name">Sebastian Gomez</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>Mi nombre es Sebastián Gómez, soy ingeniero de sistemas e Informática y Magister en Ingeniería de Sistemas de la Universidad Nacional de Colombia. Actualmente trabajo en Globant como Web UI Developer con énfasis en aplicaciones híbridas y cross compiladas. Soy el organizador del Google Developers Group de Medellín, así que contactame si quieres dar alguna charla o participar actuamente de esta comunidad.</p>
+</h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Inicio"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Inicio</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="Categorías"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Categorías</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="Etiquetas"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Etiquetas</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="Archivos"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Archivos</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-google-search"
+                             href="#search"
+                            
+                            title="Buscar"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Buscar</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="Sobre mí"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Sobre mí</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/seagomezar" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/sebasgojs" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/u/1/+SebastianGomezFrontEnd" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/sebastian-gomez-frontend/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            Como consumir APIs REST usando AngularJS
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2015-06-01T13:05:45-05:00">
+	
+		    01 jun. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Angular/">Angular</a>
+
+
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <p>En este pequeño post quiero mostrar un ejemplo sencillo de como usar angularJS para realizar consultas o peticiones a APIs rest propias o de terceros, <a id="more"></a> ya que hoy en día nos encontramos en pleno auge de angularJS y de las arquitecturas orientadas a servicios (Usando servicios Rest, Sobra decir que SOAP esta out). Lo primero que quiero compartir es la API que consumiremos, esta es <a href="http://jsonplaceholder.typicode.com/" target="_blank" rel="noopener">JSONPlaceholder</a>, allí verán una pequeña introducción de como usarla y los recursos disponible para ser accesados vía API. El ejemplo que haremos sera entonces consumir los servicios de posts, traeremos todos los posts disponibles, y también traeremos un post por id. Los pasos que seguiremos serán entonces: 1. Creación de una vista que tenga dos botones. El primer botón traerá todos los post ofrecidos por la API, y el segundo botón traerá un post especifico de acuerdo al id que ingresemos. 2. Crearemos un controlador que nos permita recibir la acción de cada uno de los botones y que sea este el encargado de llamar al servicio y recibir los datos de este para ser mostrados en la vista. 3. Crearemos el mecanismo de consumo de la API que sera una factory de angular, que nos permitirá declarar los métodos y las rutas a ser consumidas en la API. 4. Finalmente Haremos una pequeña prueba para verificar el correcto funcionamiento de esta. Eso es todo manos a la obra!!! Lo primero que haremos sera crear una estructura del proyecto como la siguiente: <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/estructura-del-proyecto.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/estructura-del-proyecto.png" alt="estructura del proyecto"></a> Luego dentro del archivo index.html copiaremos el siguiente código html:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">html</li></ul></figcaption><div class="tabs-content"><figure class="highlight html" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">html</span> <span class="attr">ng-app</span>=<span class="string">'myApp'</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">title</span>&gt;</span><span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"//ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!--Controllers--&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"controllers/testController.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">		<span class="comment">&lt;!--Services--&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"services/testService.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">body</span> <span class="attr">ng-app</span>=<span class="string">'myApp'</span> <span class="attr">ng-controller</span>=<span class="string">"testController"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">value</span>=<span class="string">"Todos los posts"</span> <span class="attr">ng-click</span>=<span class="string">"getAllPosts()"</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"submit"</span> <span class="attr">value</span>=<span class="string">"Un post"</span> <span class="attr">ng-click</span>=<span class="string">"getPost()"</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"text"</span> <span class="attr">ng-model</span>=<span class="string">"post_id"</span> <span class="attr">placeholder</span>=<span class="string">"inserte el id del post"</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-if</span>=<span class="string">"posts.exist==1"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">h1</span>&gt;</span>Lista de Posts<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-repeat</span>=<span class="string">"p in posts"</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">pre</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">h5</span>&gt;</span> Post # { {p.id}}<span class="tag">&lt;/<span class="name">h5</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">h2</span>&gt;</span>{ {p.title}}<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">p</span>&gt;</span>{ {p.body}}<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">hr</span>/&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-if</span>=<span class="string">"unPost.exist==1"</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">h1</span>&gt;</span>Un solo post<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">pre</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">h5</span>&gt;</span> Post # { {unPost.id}}<span class="tag">&lt;/<span class="name">h5</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">h2</span>&gt;</span>{ {unPost.title}}<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">p</span>&gt;</span>{ {unPost.body}}<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">hr</span>/&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Arriba en la etiqueta html tenemos el nombre de nuestra app, en este caso el nombre es myApp (esto puede ser cambiado a gusto). Como podemos ver dentro de las etiquetas <head><link rel=manifest href=/manifest.json><link rel="manifest" href="/manifest.json"> tenemos la libreria de angular incluida, para ello esta puede ser descargada via bower, o simplemente puedes linkearla directamente desde el cdn de google, accesible desde <a href="https://angularjs.org/" target="_blank" rel="noopener">angularjs.org</a> Luego tenemos nuestro controlador y nuestro servicio enlazado a nuestra vista. Posteriormente tenemos asociado el controlador para todo nuestro body, en nuestro caso es el testController. Dentro del body tenemos entonces dos botones y div resultado, cada botón tiene asociado un ng-click que llama directamente a cada función del controller, y el div que simplemente tiene asociado un modelo, donde seran seteados los datos. El flujo sera entonces cuando hagamos click en cualquiera de los dos botones se llamara la funcion del controller y este a su vez llamara al servicio para que consuma el método de la API destinado para esto. Pasemos al controlador</head></p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">angular.module(<span class="string">'myApp'</span>, [<span class="string">'testService'</span>]);</span><br><span class="line">angular.module(<span class="string">'myApp'</span>).controller(<span class="string">'testController'</span>, [<span class="string">'$scope'</span>,<span class="string">'testRequest'</span>,testController]);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">testController</span>(<span class="params">$scope, testRequest</span>) </span>{</span><br><span class="line">	$scope.posts={};</span><br><span class="line">	$scope.getAllPosts = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{</span><br><span class="line">		testRequest.posts().success(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>)</span>{</span><br><span class="line">			$scope.posts=data; <span class="comment">// Asignaremos los datos de todos los posts</span></span><br><span class="line">			$scope.posts.exist=<span class="number">1</span>;</span><br><span class="line">		});</span><br><span class="line">	}</span><br><span class="line">	$scope.getPost = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{</span><br><span class="line">		$scope.unPost={};</span><br><span class="line">		testRequest.post($scope.post_id).success(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>)</span>{</span><br><span class="line">			$scope.unPost=data; <span class="comment">// Asignaremos los datos del post</span></span><br><span class="line">			$scope.unPost.exist=<span class="number">1</span>;</span><br><span class="line">			$scope.posts.exist=<span class="number">0</span>;</span><br><span class="line">		});</span><br><span class="line">	}</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>El código del controlador es relativamente sencillo, simplemente declaramos nuestro modulo y nuestro controller. Dentro tendremos dos funciones una para obtener todos los posts y otra para obtener un post con un Id especifico, luego estas funciones llaman el servicio y reciben los datos de este y es asignado a una variable dentro del scope, esto con el fin de que le controller en caso de que existan pueda devolverlos a la vista para ser mostrados. Pasemos al servicio</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">angular.module(<span class="string">'testService'</span>, [])<span class="comment">//Declaramos el modulo</span></span><br><span class="line">.factory(<span class="string">'testRequest'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$http</span>) </span>{ <span class="comment">//declaramos la factory</span></span><br><span class="line">	<span class="keyword">var</span> path = <span class="string">"http://jsonplaceholder.typicode.com/"</span>;<span class="comment">//API path</span></span><br><span class="line">	<span class="keyword">return</span> {</span><br><span class="line">		<span class="comment">//Login</span></span><br><span class="line">		posts : <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>{ <span class="comment">//Retornara la lista de posts</span></span><br><span class="line">			global = $http.get(path+<span class="string">'posts'</span>);</span><br><span class="line">			<span class="keyword">return</span> global;</span><br><span class="line">		},</span><br><span class="line">		post : <span class="function"><span class="keyword">function</span>(<span class="params">id</span>)</span>{ <span class="comment">//retornara el post por el id</span></span><br><span class="line">			global = $http.get(path+<span class="string">'posts/'</span>+id);</span><br><span class="line">			<span class="keyword">return</span> global;	</span><br><span class="line">		}	</span><br><span class="line">	}</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Al comienzo se declara el modulo y se crea una variable llamada PATH con el fin de que este servicio sea portable en caso de que cambie la dirección de la API. Inicialmente el servicio se declara como una factory donde tendremos dos funciones, una para cada operación. Dicha factory utiliza el metodo http de angular para que pueda crear la petición REST a la API Posteriormente están los dos métodos que hacen la petición GET a la API y retornan la respuesta al controller quien a su vez asigna las variables al SCOPE para ser usados en la vista. Hecho todo lo anterior estamos listos para probar nuestra pequeña app:</p>
+<p><strong>Vista Inicial</strong></p>
+<p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/1.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/1-300x36.png" alt="1"></a></p>
+<p><strong>Lista de todos los post:</strong></p>
+<p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/2.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/2-300x240.png" alt="2"></a></p>
+<p><strong>Vista de un solo post: </strong></p>
+<p><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/06/3-300x249.png" alt="3"> Listo como ven es muy sencillo el consumo de APIs con angularJS, quizá hayan formas mejores de hacerlo, sin embargo esta es una forma completamente funcional y validada. Espero les sea de utilidad.</p>
+
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">ETIQUETADO EN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/API/">API</a> <a class="tag tag--primary tag--small t-link" href="/tags/AngularJS/">AngularJS</a> <a class="tag tag--primary tag--small t-link" href="/tags/Desarrollo-Web/">Desarrollo Web</a> <a class="tag tag--primary tag--small t-link" href="/tags/Desarrollo-frontend/">Desarrollo frontend</a> <a class="tag tag--primary tag--small t-link" href="/tags/REST/">REST</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/conectar-mandrill-con-laravel-5/" data-tooltip="Conectar y usar Mandrill con Laravel 5" aria-label="ANTERIOR: Conectar y usar Mandrill con Laravel 5">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/creacion-de-un-vhost-en-windows-y-xampp/" data-tooltip="Creación de un VHOST en Windows y XAMPP" aria-label="SIGUIENTE: Creación de un VHOST en Windows y XAMPP">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+                <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Sebastian Gomez. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/conectar-mandrill-con-laravel-5/" data-tooltip="Conectar y usar Mandrill con Laravel 5" aria-label="ANTERIOR: Conectar y usar Mandrill con Laravel 5">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/creacion-de-un-vhost-en-windows-y-xampp/" data-tooltip="Creación de un VHOST en Windows y XAMPP" aria-label="SIGUIENTE: Creación de un VHOST en Windows y XAMPP">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/">
+                    <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+    
+        
+            
+                
+    <div id="about">
+        <div id="about-card">
+            <div id="about-btn-close">
+                <i class="fa fa-remove"></i>
+            </div>
+            <main id="main" class="site-main" role="main" style="margin-left: 1em; margin-right: 1em; line-height: 24px; text-rendering: optimizelegibility;">
+                <article id="post-92" class="post-92 page type-page status-publish hentry">
+                    <div class="post-inner-content well">
+                        <header class="entry-header">
+                            <h1 class="entry-title">Sobre mí</h1>
+                        </header>
+                        <!-- .entry-header -->
+                        <div class="entry-content">
+                            <p style="text-align: justify;">
+                                <img
+                                    src="../assets/images/me.png"
+                                    alt="sebastian" width="205" height="300" srcset="../assets/images/me.png"
+                                    sizes="(max-width: 205px) 100vw, 205px"
+                                    style="float: left; margin-right: 1em;">Mi nombre es Sebastián Gómez, soy ingeniero de sistemas
+                                e Informática y Magister en Ingeniería de Sistemas
+                                de la Universidad Nacional de Colombia.</p>
+                            <p style="text-align: justify;">Actualmente trabajo en
+                                <a href="https://www.globant.com/">Globant</a> como Web UI Developer con énfasis en
+                                aplicaciones híbridas y cross compiladas. Soy el
+                                organizador del
+                                <a href="https://www.meetup.com/es-ES/GDG-Medellin">Google Developers Group de Medellín</a>, así que
+                                contactame si quieres dar alguna charla o participar
+                                actuamente de esta comunidad.</p>
+                            <p style="text-align: justify;">He participado en una Startup Colombiana&nbsp;llamada
+                                SponzorMe al lado de
+                                <a href="https://www.carlosrojasblog.com/">Carlos Rojas</a> y fuí participante de
+                                <a href="http://www.startupchile.org/">Startup Chile</a>&nbsp;a pesar de no haber continuado
+                                con esta startup me apasiona el emprendimiento y
+                                me gusta aconsejar y ayudar startups como mentor
+                                técnico. También he trabajado en empresas Americanas
+                                como
+                                <a href="https://studiohyperset.com/">StudioHyperset</a> en Estados Unidos y para
+                                <a href="http://measuredmedium.com/">Measured Medium</a>. Mi interés y mi experiencia
+                                es el desarrollo de web y móvil full stack como Front-end
+                                con Javascript. Me apasiona desarrollar software,
+                                escribir código&nbsp;y&nbsp;enseñar lo que aprendo
+                                día a día.</p>
+                            <p style="text-align: justify;">También he trabajado como profesor en diferentes universidades
+                                en Medellín Colombia, con tematicas&nbsp;relacionadas
+                                con la Inteligencia Artificial, Bases de datos, programación
+                                orientada a objetos, minería de datos, desarrollo
+                                de software, desarrollo móvil y desarrollo web.</p>
+                            <p style="text-align: justify;">Me encanta escribir&nbsp;código rápido y prototipar de
+                                una manera accelerada&nbsp;si quieres ver que&nbsp;hago
+                                día a día puedes darle un vistazo a mi codepen:&nbsp;
+                                <a
+                                    href="https://codepen.io/seagomezar/">https://codepen.io/seagomezar/</a>.</p>
+                            <p style="text-align: justify;">Todos los días trato de crear o participar en proyectos,
+                                la mayoría open source, así que puede chequear mi
+                                GitHub:&nbsp;
+                                <a href="https://github.com/seagomezar">https://github.com/seagomezar</a>.</p>
+                            <p style="text-align: justify;">Mi áreas de investigación académica&nbsp;son: Ingeniería
+                                de software, Ingeniería de requisitos, procesamiento
+                                del lenguaje natural, Ontologías, Bases De Datos,
+                                &nbsp;Machine Learning, Seguimiento de trayectorias&nbsp;y
+                                Modelamiento matemático de formaciones.</p>
+                            <p style="text-align: justify;">Estas son algunas de mis publicaciones académicas mas
+                                recientes:</p>
+                            <ul>
+                                <li style="text-align: left;">
+                                    <a href="http://revistas.unipamplona.edu.co/ojs_viceinves/index.php/RCTA/article/view/288/361"
+                                        target="_blank" rel="noopener">Caracterización de los elementos del diagrama
+                                        de objetivos de KAOS a partir de lenguaje
+                                        natural</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.redalyc.org/articulo.oa?id=47730923003"
+                                        target="_blank" rel="noopener">Analysis and Detection in V-Formations with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.hindawi.com/journals/aaa/2014/241684/"
+                                        target="_blank" rel="noopener">Identification of V-Formations and Circular and
+                                        Doughnut Formations in a Set of Moving Entities
+                                        with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.revistasiush.com/index.php/quid/article/download/71/33"
+                                        target="_blank" rel="noopener">Using ontologies for disambiguation of software
+                                        artifacts. in software requirements elicitation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.scielo.cl/scielo.php?pid=S0718-33052015000100007&amp;script=sci_arttext&amp;tlng=e"
+                                        target="_blank" rel="noopener">Extraction of goals and their classification
+                                        in the KAOS model using natural&nbsp;language
+                                        processing</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://link.springer.com/chapter/10.1007/978-3-319-06764-3_5#page-1"
+                                        target="_blank" rel="noopener">Obtaining Agents and Entities from Natural Language</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.enggjournals.com/ijet/docs/IJET14-06-06-128.pdf">Filtering Word Senses Using the Least Squares
+                                        Technique for Word Sense Disambiguation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://revistavirtual.ucn.edu.co/index.php/RevistaUCN/article/view/707/1234">Un modelo de procesamiento de lenguaje natural
+                                        para la&nbsp;detección de errores en requisitos
+                                        de software</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- .entry-content -->
+                </article>
+                <!-- #post-## -->
+            </main>
+        </div>
+    </div>
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover-v1.2.0.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-9mnrhgp6lyjkxpqnqtuo1xev1egf2hnkbf3shwp4sqwnee1molrmgznbmvhm.min.js"></script>
+<!--SCRIPTS END-->
+
+    
+        <script>
+             var disqus_config = function () {
+                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/como-consumir-apis-rest-usando-angularjs/';
+                 
+                    this.page.identifier = 'como-consumir-apis-rest-usando-angularjs/';
+                 
+             };
+            (function() {
+                var d = document, s = d.createElement('script');
+                var disqus_shortname = 'sebastiangomez';
+                s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+    
+
+
+
+    <script>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+    .then(function () {console.log('ServiceWorker Register Successfully.')})
+    .catch(function (e) {console.error(e)});
+}
+</script></body>
+</html>

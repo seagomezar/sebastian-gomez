@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+<html lang="es">
+    
+<head><link rel=manifest href=/manifest.json>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Sebastian Gomez">
+    <title>Etiqueta: Javascript - Sebastian Gomez</title>
+    <meta name="author" content="Sebastian Gomez">
+    
+        <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
+    
+    
+        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{}</script>
+    <meta name="description" content="Escribo para poder aprender más">
+<meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Sebastian Gomez">
+<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/page/2/index.html">
+<meta property="og:site_name" content="Sebastian Gomez">
+<meta property="og:description" content="Escribo para poder aprender más">
+<meta property="og:locale" content="es">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sebastian Gomez">
+<meta name="twitter:description" content="Escribo para poder aprender más">
+<meta name="twitter:creator" content="@sebasgojs">
+    
+        <link rel="publisher" href="https://plus.google.com/+SebastianGomezFrontEnd"/>
+    
+    
+        
+    
+    
+        <meta property="og:image" content="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=640"/>
+    
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-5pavynit182cxzgycpqavetpez2yhfpthd7iavub2bczfzdrk7zx7lnrfejr.min.css">
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-63483506-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+    
+
+<header id="header" data-behavior="1">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Sebastian Gomez</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=90" alt="Foto de autor"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+    
+
+<nav id="sidebar" data-behavior="1">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=110" alt="Foto de autor"/>
+                </a>
+                <h4 class="sidebar-profile-name">Sebastian Gomez</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>Mi nombre es Sebastián Gómez, soy ingeniero de sistemas e Informática y Magister en Ingeniería de Sistemas de la Universidad Nacional de Colombia. Actualmente trabajo en Globant como Web UI Developer con énfasis en aplicaciones híbridas y cross compiladas. Soy el organizador del Google Developers Group de Medellín, así que contactame si quieres dar alguna charla o participar actuamente de esta comunidad.</p>
+</h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Inicio"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Inicio</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="Categorías"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Categorías</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="Etiquetas"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Etiquetas</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="Archivos"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Archivos</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-google-search"
+                             href="#search"
+                            
+                            title="Buscar"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Buscar</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="Sobre mí"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Sobre mí</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/seagomezar" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/sebasgojs" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/u/1/+SebastianGomezFrontEnd" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/sebastian-gomez-frontend/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="1"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+    <section class="postShorten-group main-content-wrap">
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a class="link-unstyled" href="/implementando-google-cloud-vision-en-nodejs/">
+                            Implementando Google Cloud Vision en NodeJS
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2017-12-26T07:34:35-05:00">
+	
+		    26 dic. 2017
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Javascript/">Javascript</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>Siguiendo con la temática de la Cloud Visión de Google en este post vamos a implementarla en NodeJS para detectar características sobre imágenes.<br>
+                    
+                        <a href="/implementando-google-cloud-vision-en-nodejs/" class="postShorten-excerpt_link link">
+                            Seguir leyendo
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a href="/implementando-google-cloud-vision-en-nodejs/">
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2017/12/cloud-vision.jpg"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a class="link-unstyled" href="/simple-login-con-angular-2-parte-6/">
+                            Simple Login Con Angular 2 Parte 6
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2015-11-26T16:22:49-05:00">
+	
+		    26 nov. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Angular/">Angular</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>En este post haremos un sistema de login básico con Angular 2: El sistema de login que desarrollaremos en este tutorial consiste en que solo mostraremos un contenido, si el usuario se encuentra logueado en nuestro sistema para ello utilizaremos un usuario por defecto que responde a las credenciales username: test password: test.<br>
+                    
+                        <a href="/simple-login-con-angular-2-parte-6/" class="postShorten-excerpt_link link">
+                            Seguir leyendo
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a href="/simple-login-con-angular-2-parte-6/">
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a class="link-unstyled" href="/angular2-principios-de-typescript-parte-5/">
+                            Angular, Principios de Typescript Parte 5
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2015-11-19T16:04:25-05:00">
+	
+		    19 nov. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Typescript/">Typescript</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>Si has seguido mis tutoriales sobre Angular hasta aquí te darás cuenta que he tratado al máximo de evitar el uso de Typescript, de hecho si revisas directamente la documentación de Angular te darás cuenta que de la mayoría de la documentación esta hecha en Typescript. Esto se debe básicamente el equipo de Angular decidio crear Angular sobre TypesScript, TypeScript es una colaboración oficial entre Google y Microsoft con el fin de orientar completamente Javascript a Objetos. </p>
+                    
+                        <a href="/angular2-principios-de-typescript-parte-5/" class="postShorten-excerpt_link link">
+                            Seguir leyendo
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a href="/angular2-principios-de-typescript-parte-5/">
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a class="link-unstyled" href="/angular-2-aplicacion-que-saluda-parte-4/">
+                            Angular 2 aplicación que saluda Parte 4
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2015-11-10T10:34:31-05:00">
+	
+		    10 nov. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Angular/">Angular</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>En este post vamos a adentrarnos un poco más en las características nuevas de Angular 2, si aún no estas lo suficientemente familiarizado con Angular 2 y su funcionamiento básico,
+                    
+                        <a href="/angular-2-aplicacion-que-saluda-parte-4/" class="postShorten-excerpt_link link">
+                            Seguir leyendo
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a href="/angular-2-aplicacion-que-saluda-parte-4/">
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a class="link-unstyled" href="/angular-2-con-javascript-hola-mundo-parte-3/">
+                            Angular con Javascript Hola Mundo Parte 3
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2015-11-03T17:51:32-05:00">
+	
+		    03 nov. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Angular/">Angular</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>En este post construiremos una sencilla aplicación en Angular, que nos permita empezar a comprender el funcionamiento de Angular, y como usarlo. La aplicación consistirá simplemente en el típico hola mundo que es el proyecto insignia para iniciar el aprendizaje de un lenguaje de programación.
+                    
+                        <a href="/angular-2-con-javascript-hola-mundo-parte-3/" class="postShorten-excerpt_link link">
+                            Seguir leyendo
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a href="/angular-2-con-javascript-hola-mundo-parte-3/">
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    
+    <article class="postShorten postShorten--thumbnailimg-left">
+        <div class="postShorten-wrap">
+            
+            <div class="postShorten-header">
+                <h1 class="postShorten-title">
+                    
+                        <a class="link-unstyled" href="/angular-1-vs-angular-2-parte-2/">
+                            AngularJS vs Angular Parte 2
+                        </a>
+                    
+                </h1>
+                <div class="postShorten-meta">
+    <time datetime="2015-10-31T16:51:18-05:00">
+	
+		    31 oct. 2015
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Angular/">Angular</a>
+
+
+    
+</div>
+
+            </div>
+            
+                <div class="postShorten-excerpt">
+                    <p>AngularJS en su versión 1 se define a si mismo como un conjunto de librerías de Javascript para la creación de aplicaciones web, mientras que Angular 2 se define a si mismo como una plataforma para creación de aplicaciones web y aplicaciones móviles. Estas son las respectivas definiciones que nos encontramos en la documentación oficial de dichas plataformas:</p>
+                    
+                        <a href="/angular-1-vs-angular-2-parte-2/" class="postShorten-excerpt_link link">
+                            Seguir leyendo
+                        </a>
+                        
+                    
+                </div>
+            
+        </div>
+        
+            <a href="/angular-1-vs-angular-2-parte-2/">
+                <div class="postShorten-thumbnailimg">
+                    <img alt="" src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"/>
+                </div>
+            </a>
+            
+        
+    </article>
+    
+    <div class="pagination-bar">
+    <ul class="pagination">
+        
+          <li class="pagination-prev">
+            <a class="btn btn--default btn--small" href="/tags/Javascript/">
+              <i class="fa fa-angle-left text-base icon-mr"></i>
+              <span>ARTÍCULOS RECIENTES</span>
+            </a>
+          </li>
+        
+        
+          <li class="pagination-next">
+            <a class="btn btn--default btn--small" href="/tags/Javascript/page/3/">
+              <span>ARTÍCULOS ANTERIORES</span>
+              <i class="fa fa-angle-right text-base icon-ml"></i>
+            </a>
+          </li>
+        
+        <li class="pagination-number">página 2 de 3</li>
+    </ul>
+</div>
+
+</section>
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Sebastian Gomez. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+        </div>
+        
+    
+        
+            
+                
+    <div id="about">
+        <div id="about-card">
+            <div id="about-btn-close">
+                <i class="fa fa-remove"></i>
+            </div>
+            <main id="main" class="site-main" role="main" style="margin-left: 1em; margin-right: 1em; line-height: 24px; text-rendering: optimizelegibility;">
+                <article id="post-92" class="post-92 page type-page status-publish hentry">
+                    <div class="post-inner-content well">
+                        <header class="entry-header">
+                            <h1 class="entry-title">Sobre mí</h1>
+                        </header>
+                        <!-- .entry-header -->
+                        <div class="entry-content">
+                            <p style="text-align: justify;">
+                                <img
+                                    src="../assets/images/me.png"
+                                    alt="sebastian" width="205" height="300" srcset="../assets/images/me.png"
+                                    sizes="(max-width: 205px) 100vw, 205px"
+                                    style="float: left; margin-right: 1em;">Mi nombre es Sebastián Gómez, soy ingeniero de sistemas
+                                e Informática y Magister en Ingeniería de Sistemas
+                                de la Universidad Nacional de Colombia.</p>
+                            <p style="text-align: justify;">Actualmente trabajo en
+                                <a href="https://www.globant.com/">Globant</a> como Web UI Developer con énfasis en
+                                aplicaciones híbridas y cross compiladas. Soy el
+                                organizador del
+                                <a href="https://www.meetup.com/es-ES/GDG-Medellin">Google Developers Group de Medellín</a>, así que
+                                contactame si quieres dar alguna charla o participar
+                                actuamente de esta comunidad.</p>
+                            <p style="text-align: justify;">He participado en una Startup Colombiana&nbsp;llamada
+                                SponzorMe al lado de
+                                <a href="https://www.carlosrojasblog.com/">Carlos Rojas</a> y fuí participante de
+                                <a href="http://www.startupchile.org/">Startup Chile</a>&nbsp;a pesar de no haber continuado
+                                con esta startup me apasiona el emprendimiento y
+                                me gusta aconsejar y ayudar startups como mentor
+                                técnico. También he trabajado en empresas Americanas
+                                como
+                                <a href="https://studiohyperset.com/">StudioHyperset</a> en Estados Unidos y para
+                                <a href="http://measuredmedium.com/">Measured Medium</a>. Mi interés y mi experiencia
+                                es el desarrollo de web y móvil full stack como Front-end
+                                con Javascript. Me apasiona desarrollar software,
+                                escribir código&nbsp;y&nbsp;enseñar lo que aprendo
+                                día a día.</p>
+                            <p style="text-align: justify;">También he trabajado como profesor en diferentes universidades
+                                en Medellín Colombia, con tematicas&nbsp;relacionadas
+                                con la Inteligencia Artificial, Bases de datos, programación
+                                orientada a objetos, minería de datos, desarrollo
+                                de software, desarrollo móvil y desarrollo web.</p>
+                            <p style="text-align: justify;">Me encanta escribir&nbsp;código rápido y prototipar de
+                                una manera accelerada&nbsp;si quieres ver que&nbsp;hago
+                                día a día puedes darle un vistazo a mi codepen:&nbsp;
+                                <a
+                                    href="https://codepen.io/seagomezar/">https://codepen.io/seagomezar/</a>.</p>
+                            <p style="text-align: justify;">Todos los días trato de crear o participar en proyectos,
+                                la mayoría open source, así que puede chequear mi
+                                GitHub:&nbsp;
+                                <a href="https://github.com/seagomezar">https://github.com/seagomezar</a>.</p>
+                            <p style="text-align: justify;">Mi áreas de investigación académica&nbsp;son: Ingeniería
+                                de software, Ingeniería de requisitos, procesamiento
+                                del lenguaje natural, Ontologías, Bases De Datos,
+                                &nbsp;Machine Learning, Seguimiento de trayectorias&nbsp;y
+                                Modelamiento matemático de formaciones.</p>
+                            <p style="text-align: justify;">Estas son algunas de mis publicaciones académicas mas
+                                recientes:</p>
+                            <ul>
+                                <li style="text-align: left;">
+                                    <a href="http://revistas.unipamplona.edu.co/ojs_viceinves/index.php/RCTA/article/view/288/361"
+                                        target="_blank" rel="noopener">Caracterización de los elementos del diagrama
+                                        de objetivos de KAOS a partir de lenguaje
+                                        natural</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.redalyc.org/articulo.oa?id=47730923003"
+                                        target="_blank" rel="noopener">Analysis and Detection in V-Formations with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.hindawi.com/journals/aaa/2014/241684/"
+                                        target="_blank" rel="noopener">Identification of V-Formations and Circular and
+                                        Doughnut Formations in a Set of Moving Entities
+                                        with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.revistasiush.com/index.php/quid/article/download/71/33"
+                                        target="_blank" rel="noopener">Using ontologies for disambiguation of software
+                                        artifacts. in software requirements elicitation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.scielo.cl/scielo.php?pid=S0718-33052015000100007&amp;script=sci_arttext&amp;tlng=e"
+                                        target="_blank" rel="noopener">Extraction of goals and their classification
+                                        in the KAOS model using natural&nbsp;language
+                                        processing</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://link.springer.com/chapter/10.1007/978-3-319-06764-3_5#page-1"
+                                        target="_blank" rel="noopener">Obtaining Agents and Entities from Natural Language</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.enggjournals.com/ijet/docs/IJET14-06-06-128.pdf">Filtering Word Senses Using the Least Squares
+                                        Technique for Word Sense Disambiguation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://revistavirtual.ucn.edu.co/index.php/RevistaUCN/article/view/707/1234">Un modelo de procesamiento de lenguaje natural
+                                        para la&nbsp;detección de errores en requisitos
+                                        de software</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- .entry-content -->
+                </article>
+                <!-- #post-## -->
+            </main>
+        </div>
+    </div>
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover-v1.2.0.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-9mnrhgp6lyjkxpqnqtuo1xev1egf2hnkbf3shwp4sqwnee1molrmgznbmvhm.min.js"></script>
+<!--SCRIPTS END-->
+
+
+
+    <script>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+    .then(function () {console.log('ServiceWorker Register Successfully.')})
+    .catch(function (e) {console.error(e)});
+}
+</script></body>
+</html>

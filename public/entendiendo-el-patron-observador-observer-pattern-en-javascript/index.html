@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+<html lang="es">
+    
+<head><link rel=manifest href=/manifest.json>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Sebastian Gomez">
+    <title>Entendiendo el patrón observador &#34;Observer Pattern&#34; en Javascript - Sebastian Gomez</title>
+    <meta name="author" content="Sebastian Gomez">
+    
+        <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
+    
+    
+        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+    
+    
+        <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
+    
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"\nEl patrón observador es uno de los patrones de diseño de software más usado en Javascript. De el se extienden importantes aplicaciones que pueden ayudar a definir mejores arquitecturas en aplicaciones web, por lo que su uso y estudio es altamente recomendado. En este post aprenderemos como implementarlo en Javascript y en que situaciones lo podemos usar.\nEn primer lugar el patrón observador se define como un patrón de comportamiento es decir que dentro del mundo de la programación orientada a objetos es un patrón responsable por la comunicación entre objetos.\nEn segundo lugar el patrón observador también puedes encontrarlo como el patrón publicador-subscriptor o modelo-patrón y nos da una idea básica de lo que hace. En términos simples este patrón permite la notificación a objetos (subscriptores u observador) al cambio de otro objeto (publicador).\nVeamos entonces un pequeño diagrama con las responsabilidades de los involucrados en este patrón. En primer lugar el publicador debe notificar a los subscriptores o observadores que algo cambió, y en segundo lugar los subscriptores deben poder subscribirse o de suscribirse del publicador en cualquier momento:\n\n¿Cómo podemos entonces implementarlo en Javascript?, empecemos implementando una clase llamada Publicador que contenga los métodos subscribe(), unsubscribe(), y notify().\njs1234567891011121314151617181920class Publicador {    constructor() {      this.subscriptors = \\[\\];    }    subscribe(subscriptor) {      this.subscriptors.push(subscriptor);    }      unsubscribe(subscriptor) {      this.subscriptors = this.subscriptors.filter( item =&gt; item !== subscriptor );    }      notify(event) {      this.subscriptors.forEach( item =&gt; {        item.call(this, event);       });    }  }\nComo verás hemos manejado la lista de subscriptores con un array de Javascript como propiedad de la clase así es posible fácilmente subscribir y des-subscribir subscriptores. También la función notify itera sobre cada uno de los subscriptores y se encarga de invocarlos con el evento.\nAhora imaginemos que usaremos esta definición de Publicador para un periódico que regularmente publica nuevas ediciones.\njs1const periodico = new Publicador();\nBien, pensemos un poco más acerca de los clientes. Estos van a necesitar saber cuando llegue una nueva versión del periódico. Inicialmente pensemos en que los clientes son funciones:\njs1234567function Observer(edicion) {  console.log(\"LLegó una nueva edición con el nombre de: \" + edicion);}periodico.subscribe(Observer);periodico.subscribe(Observer); periodico.notify(\"Nueva edicion\");\nCon esta definición anterior al ejecutarlo obtenemos algo así:\n“LLegó una nueva edición con el nombre de: Nueva edicion”“LLegó una nueva edición con el nombre de: Nueva edicion”\nSi queremos ser conscientes de que cliente recibió que edición del periódico podemos retocar un poco las definiciones de la función notify y de la función observer:\njs1234567891011121314151617class Publicador {  ...  notify(event) {    let index = 0;    this.subscriptors.forEach( item =&gt; {      item.call(this, index, event);       index++;    });  }    ...}...function Observer(index, edicion) {  console.log(\"Al Observador #\" +               index + \" le llegó una nueva edición con el nombre de: \" +               edicion);}\nDe esta manera tenemos como output algo mucho mas entendible:\njs12\"Al Observador #0 le llegó una nueva edición con el nombre de: Nueva edicion\"  \"Al Observador #1 le llegó una nueva edición con el nombre de: Nueva edicion\"\nSin embargo como un mejor acercamiento podríamos definir una clase para los clientes que nos permita crear instancias de ella y tener un control mas granular. También debemos definir un método únicamente diseñado para escuchar por nuevas decisiones del periódico.\njs12345678910111213class Observador {  constructor(id) {    this.id = id;    console.log(\"Se ha creado el subscriptor #: \" + id);  }  buzon(edicion) {    console.log(\"Subscriptor # \" + this.id + \" recibió una nueva edición: \" + edicion);  }}const subscriptor1 = new Subscriptor(1);const subscriptor2 = new Subscriptor(2);const subscriptor3 = new Subscriptor(3);\nDe esta forma podemos tener más control sobre los subscriptores y podemos subscribirlos y des-subscribirlos de mejor manera. A continuación verás como publicar multiples ediciones de un perioido así como la habilidad suscribir y des-suscribir clientes:\njs12345678910111213periodico.subscribe(subscriptor1);periodico.subscribe(subscriptor2);periodico.notify(\"Nueva edicion\");periodico.subscribe(subscriptor3); periodico.notify(\"Segunda edicion\"); periodico.unsubscribe(subscriptor1); periodico.notify(\"Tercera edicion\"); periodico.subscribe(subscriptor2);periodico.notify(\"Nueva edicion\");periodico.subscribe(subscriptor3); periodico.notify(\"Segunda edicion\"); periodico.unsubscribe(subscriptor1); periodico.notify(\"Tercera edicion\");\nY obtenemos la siguiente salida:\njs12345678910111213141516171819\"--- Primera edición ---\"\"Subscriptor # 1 recibió una nueva edición: Nueva edicion\"\"Subscriptor # 2 recibió una nueva edición: Nueva edicion\"\"--- Segunda edición ---\"\"Subscriptor # 1 recibió una nueva edición: Segunda edicion\"\"Subscriptor # 2 recibió una nueva edición: Segunda edicion\"\"Subscriptor # 3 recibió una nueva edición: Segunda edicion\"\"--- Tercera edición ---\"\"Subscriptor # 2 recibió una nueva edición: Tercera edicion\"\"Subscriptor # 3 recibió una nueva edición: Tercera edicion\"\nDe esta manera queda totalmente completo el patrón observer. Como vez es muy fácil implementar el patrón observer y su utilidad es casi inmediata. A continuación podrás observar todo el código completo de este ejemplo:\njs12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455class Publicador {    constructor() {      this.subscriptors = \\[\\];    }    subscribe(subscriptor) {      this.subscriptors.push(subscriptor);    }      unsubscribe(subscriptor) {      this.subscriptors = this.subscriptors.filter( item =&gt; item !== subscriptor );    }      notify(event) {      this.subscriptors.forEach( item =&gt; {        item.buzon.call(item, event);      });    }  }class Subscriptor {  constructor(id) {    this.id = id;    console.log(\"Se ha creado el subscriptor #: \" + id);  }  buzon(edicion) {    console.log(\"Subscriptor # \" + this.id + \" recibió una nueva edición: \" + edicion);  }}const periodico = new Publicador();const subscriptor1 = new Subscriptor(1);const subscriptor2 = new Subscriptor(2);const subscriptor3 = new Subscriptor(3);console.log(\"--- Primera edición ---\");periodico.subscribe(subscriptor1);periodico.subscribe(subscriptor2);periodico.notify(\"Nueva edicion\");console.log(\"--- Segunda edición ---\");periodico.subscribe(subscriptor3); periodico.notify(\"Segunda edicion\"); console.log(\"--- Tercera edición ---\");periodico.unsubscribe(subscriptor1); periodico.notify(\"Tercera edicion\");\nEso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza del patrón observer. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.","dateCreated":"2018-02-21T05:03:59-05:00","dateModified":"2018-05-24T09:08:40-05:00","datePublished":"2018-02-21T05:03:59-05:00","description":"En este post aprenderemos como implementar el patrón observer en Javascript y en que situaciones lo podemos usar.","headline":"Entendiendo el patrón observador \"Observer Pattern\" en Javascript","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&ssl=1"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/","keywords":"Desarrollo Web, Javascript","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&ssl=1"}</script>
+    <meta name="description" content="En este post aprenderemos como implementar el patrón observer en Javascript y en que situaciones lo podemos usar.">
+<meta name="keywords" content="Desarrollo Web,Javascript">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Entendiendo el patrón observador &quot;Observer Pattern&quot; en Javascript">
+<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/index.html">
+<meta property="og:site_name" content="Sebastian Gomez">
+<meta property="og:description" content="En este post aprenderemos como implementar el patrón observer en Javascript y en que situaciones lo podemos usar.">
+<meta property="og:locale" content="es">
+<meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/A004581F-4C80-4ADA-A5A5-A298253AF072.png">
+<meta property="og:updated_time" content="2018-05-24T14:08:40.989Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Entendiendo el patrón observador &quot;Observer Pattern&quot; en Javascript">
+<meta name="twitter:description" content="En este post aprenderemos como implementar el patrón observer en Javascript y en que situaciones lo podemos usar.">
+<meta name="twitter:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/A004581F-4C80-4ADA-A5A5-A298253AF072.png">
+<meta name="twitter:creator" content="@sebasgojs">
+    
+        <link rel="publisher" href="https://plus.google.com/+SebastianGomezFrontEnd"/>
+    
+    
+        
+    
+    
+        <meta property="og:image" content="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=640"/>
+    
+    
+        <meta property="og:image" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&amp;ssl=1"/>
+        <meta class="swiftype" name="image" data-type="enum" content="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&amp;ssl=1" />
+    
+    
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="/assets/css/style-5pavynit182cxzgycpqavetpez2yhfpthd7iavub2bczfzdrk7zx7lnrfejr.min.css">
+    <!--STYLES END-->
+    
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-63483506-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <!-- Define author's picture -->
+
+
+    
+        
+    
+
+<header id="header" data-behavior="4">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <div class="header-title">
+        <a class="header-title-link" href="/ ">Sebastian Gomez</a>
+    </div>
+    
+        
+            <a  class="header-right-picture "
+                href="#about">
+        
+        
+            <img class="header-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=90" alt="Foto de autor"/>
+        
+        </a>
+    
+</header>
+
+            <!-- Define author's picture -->
+
+
+    
+
+<nav id="sidebar" data-behavior="4">
+    <div class="sidebar-container">
+        
+            <div class="sidebar-profile">
+                <a href="/#about">
+                    <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/935bc41cc7c9a331454ad5f59e40ca45?s=110" alt="Foto de autor"/>
+                </a>
+                <h4 class="sidebar-profile-name">Sebastian Gomez</h4>
+                
+                    <h5 class="sidebar-profile-bio"><p>Mi nombre es Sebastián Gómez, soy ingeniero de sistemas e Informática y Magister en Ingeniería de Sistemas de la Universidad Nacional de Colombia. Actualmente trabajo en Globant como Web UI Developer con énfasis en aplicaciones híbridas y cross compiladas. Soy el organizador del Google Developers Group de Medellín, así que contactame si quieres dar alguna charla o participar actuamente de esta comunidad.</p>
+</h5>
+                
+            </div>
+        
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/ "
+                            
+                            title="Inicio"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-home" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Inicio</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-categories"
+                            
+                            title="Categorías"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-bookmark" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Categorías</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-tags"
+                            
+                            title="Etiquetas"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-tags" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Etiquetas</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/all-archives"
+                            
+                            title="Archivos"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-archive" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Archivos</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link open-google-search"
+                             href="#search"
+                            
+                            title="Buscar"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-search" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Buscar</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="#about"
+                            
+                            title="Sobre mí"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-question" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Sobre mí</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://github.com/seagomezar" target="_blank" rel="noopener" title="GitHub">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-github" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">GitHub</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://twitter.com/sebasgojs" target="_blank" rel="noopener" title="Twitter">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-twitter" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Twitter</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://plus.google.com/u/1/+SebastianGomezFrontEnd" target="_blank" rel="noopener" title="Google Plus">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-google-plus" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">Google Plus</span>
+                    </a>
+            </li>
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link " href="https://www.linkedin.com/profile/sebastian-gomez-frontend/" target="_blank" rel="noopener" title="LinkedIn">
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-linkedin" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">LinkedIn</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+            <ul class="sidebar-buttons">
+            
+                <li class="sidebar-button">
+                    
+                        <a  class="sidebar-button-link "
+                             href="/atom.xml"
+                            
+                            title="RSS"
+                        >
+                    
+                        <i class="sidebar-button-icon fa fa-lg fa-rss" aria-hidden="true"></i>
+                        <span class="sidebar-button-desc">RSS</span>
+                    </a>
+            </li>
+            
+        </ul>
+        
+    </div>
+</nav>
+
+            
+            <div id="main" data-behavior="4"
+                 class="
+                        hasCoverMetaIn
+                        ">
+                
+<article class="post">
+    
+    
+        <div class="post-header main-content-wrap text-left">
+    
+        <h1 class="post-title">
+            Entendiendo el patrón observador &#34;Observer Pattern&#34; en Javascript
+        </h1>
+    
+    
+        <div class="post-meta">
+    <time datetime="2018-02-21T05:03:59-05:00">
+	
+		    21 feb. 2018
+    	
+    </time>
+    
+        <span>en </span>
+        
+    <a class="category-link" href="/categories/Javascript/">Javascript</a>
+
+
+    
+</div>
+
+    
+</div>
+
+    
+    <div class="post-content markdown">
+        <div class="main-content-wrap">
+            <!-- excerpt --></p>
+<p>El patrón observador es uno de los patrones de diseño de software más usado en Javascript. De el se extienden importantes aplicaciones que pueden ayudar a definir mejores arquitecturas en aplicaciones web, por lo que su uso y estudio es altamente recomendado. En este post aprenderemos como implementarlo en Javascript y en que situaciones lo podemos usar.</p>
+<p>En primer lugar el patrón observador se define como un patrón de comportamiento es decir que dentro del mundo de la programación orientada a objetos es un patrón responsable por la comunicación entre objetos.</p>
+<p>En segundo lugar el patrón observador también puedes encontrarlo como el patrón publicador-subscriptor o modelo-patrón y nos da una idea básica de lo que hace. En términos simples este patrón permite la notificación a objetos (subscriptores u observador) al cambio de otro objeto (publicador).</p>
+<p>Veamos entonces un pequeño diagrama con las responsabilidades de los involucrados en este patrón. En primer lugar el publicador debe notificar a los subscriptores o observadores que algo cambió, y en segundo lugar los subscriptores deben poder subscribirse o de suscribirse del publicador en cualquier momento:</p>
+<p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/A004581F-4C80-4ADA-A5A5-A298253AF072.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/A004581F-4C80-4ADA-A5A5-A298253AF072.png" alt=""></a></p>
+<p>¿Cómo podemos entonces implementarlo en Javascript?, empecemos implementando una clase llamada Publicador que contenga los métodos subscribe(), unsubscribe(), y notify().</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Publicador</span> </span>{</span><br><span class="line"></span><br><span class="line">    <span class="keyword">constructor</span>() {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors = \[\];</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    subscribe(subscriptor) {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors.push(subscriptor);</span><br><span class="line">    }</span><br><span class="line">  </span><br><span class="line">    unsubscribe(subscriptor) {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors = <span class="keyword">this</span>.subscriptors.filter( <span class="function"><span class="params">item</span> =&gt;</span> item !== subscriptor );</span><br><span class="line">    }</span><br><span class="line">  </span><br><span class="line">    notify(event) {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors.forEach( <span class="function"><span class="params">item</span> =&gt;</span> {</span><br><span class="line">        item.call(<span class="keyword">this</span>, event); </span><br><span class="line">      });</span><br><span class="line">    }  </span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Como verás hemos manejado la lista de subscriptores con un array de Javascript como propiedad de la clase así es posible fácilmente subscribir y des-subscribir subscriptores. También la función notify itera sobre cada uno de los subscriptores y se encarga de invocarlos con el evento.</p>
+<p>Ahora imaginemos que usaremos esta definición de Publicador para un periódico que regularmente publica nuevas ediciones.</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> periodico = <span class="keyword">new</span> Publicador();</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Bien, pensemos un poco más acerca de los clientes. Estos van a necesitar saber cuando llegue una nueva versión del periódico. Inicialmente pensemos en que los clientes son funciones:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Observer</span>(<span class="params">edicion</span>) </span>{</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"LLegó una nueva edición con el nombre de: "</span> + edicion);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">periodico.subscribe(Observer);</span><br><span class="line">periodico.subscribe(Observer); </span><br><span class="line">periodico.notify(<span class="string">"Nueva edicion"</span>);</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Con esta definición anterior al ejecutarlo obtenemos algo así:</p>
+<p>“LLegó una nueva edición con el nombre de: Nueva edicion”<br>“LLegó una nueva edición con el nombre de: Nueva edicion”</p>
+<p>Si queremos ser conscientes de que cliente recibió que edición del periódico podemos retocar un poco las definiciones de la función notify y de la función observer:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Publicador</span> </span>{</span><br><span class="line">  ...</span><br><span class="line">  notify(event) {</span><br><span class="line">    <span class="keyword">let</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">this</span>.subscriptors.forEach( <span class="function"><span class="params">item</span> =&gt;</span> {</span><br><span class="line">      item.call(<span class="keyword">this</span>, index, event); </span><br><span class="line">      index++;</span><br><span class="line">    });</span><br><span class="line">  }  </span><br><span class="line">  ...</span><br><span class="line">}</span><br><span class="line">...</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Observer</span>(<span class="params">index, edicion</span>) </span>{</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">"Al Observador #"</span> + </span><br><span class="line">              index + <span class="string">" le llegó una nueva edición con el nombre de: "</span> + </span><br><span class="line">              edicion);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>De esta manera tenemos como output algo mucho mas entendible:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"Al Observador #0 le llegó una nueva edición con el nombre de: Nueva edicion"</span>  </span><br><span class="line"><span class="string">"Al Observador #1 le llegó una nueva edición con el nombre de: Nueva edicion"</span></span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Sin embargo como un mejor acercamiento podríamos definir una clase para los clientes que nos permita crear instancias de ella y tener un control mas granular. También debemos definir un método únicamente diseñado para escuchar por nuevas decisiones del periódico.</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Observador</span> </span>{</span><br><span class="line">  <span class="keyword">constructor</span>(id) {</span><br><span class="line">    <span class="keyword">this</span>.id = id;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Se ha creado el subscriptor #: "</span> + id);</span><br><span class="line">  }</span><br><span class="line">  buzon(edicion) {</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Subscriptor # "</span> + <span class="keyword">this</span>.id + <span class="string">" recibió una nueva edición: "</span> + edicion);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> subscriptor1 = <span class="keyword">new</span> Subscriptor(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">const</span> subscriptor2 = <span class="keyword">new</span> Subscriptor(<span class="number">2</span>);</span><br><span class="line"><span class="keyword">const</span> subscriptor3 = <span class="keyword">new</span> Subscriptor(<span class="number">3</span>);</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>De esta forma podemos tener más control sobre los subscriptores y podemos subscribirlos y des-subscribirlos de mejor manera. A continuación verás como publicar multiples ediciones de un perioido así como la habilidad suscribir y des-suscribir clientes:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">periodico.subscribe(subscriptor1);</span><br><span class="line">periodico.subscribe(subscriptor2);</span><br><span class="line">periodico.notify(<span class="string">"Nueva edicion"</span>);</span><br><span class="line">periodico.subscribe(subscriptor3); </span><br><span class="line">periodico.notify(<span class="string">"Segunda edicion"</span>); </span><br><span class="line">periodico.unsubscribe(subscriptor1); </span><br><span class="line">periodico.notify(<span class="string">"Tercera edicion"</span>); </span><br><span class="line">periodico.subscribe(subscriptor2);</span><br><span class="line">periodico.notify(<span class="string">"Nueva edicion"</span>);</span><br><span class="line">periodico.subscribe(subscriptor3); </span><br><span class="line">periodico.notify(<span class="string">"Segunda edicion"</span>); </span><br><span class="line">periodico.unsubscribe(subscriptor1); </span><br><span class="line">periodico.notify(<span class="string">"Tercera edicion"</span>);</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Y obtenemos la siguiente salida:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"--- Primera edición ---"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"Subscriptor # 1 recibió una nueva edición: Nueva edicion"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"Subscriptor # 2 recibió una nueva edición: Nueva edicion"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"--- Segunda edición ---"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"Subscriptor # 1 recibió una nueva edición: Segunda edicion"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"Subscriptor # 2 recibió una nueva edición: Segunda edicion"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"Subscriptor # 3 recibió una nueva edición: Segunda edicion"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"--- Tercera edición ---"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"Subscriptor # 2 recibió una nueva edición: Tercera edicion"</span></span><br><span class="line"></span><br><span class="line"><span class="string">"Subscriptor # 3 recibió una nueva edición: Tercera edicion"</span></span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>De esta manera queda totalmente completo el patrón observer. Como vez es muy fácil implementar el patrón observer y su utilidad es casi inmediata. A continuación podrás observar todo el código completo de este ejemplo:</p>
+<figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Publicador</span> </span>{</span><br><span class="line">    <span class="keyword">constructor</span>() {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors = \[\];</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    subscribe(subscriptor) {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors.push(subscriptor);</span><br><span class="line">    }</span><br><span class="line">  </span><br><span class="line">    unsubscribe(subscriptor) {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors = <span class="keyword">this</span>.subscriptors.filter( <span class="function"><span class="params">item</span> =&gt;</span> item !== subscriptor );</span><br><span class="line">    }</span><br><span class="line">  </span><br><span class="line">    notify(event) {</span><br><span class="line">      <span class="keyword">this</span>.subscriptors.forEach( <span class="function"><span class="params">item</span> =&gt;</span> {</span><br><span class="line">        item.buzon.call(item, event);</span><br><span class="line">      });</span><br><span class="line">    }  </span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Subscriptor</span> </span>{</span><br><span class="line">  <span class="keyword">constructor</span>(id) {</span><br><span class="line">    <span class="keyword">this</span>.id = id;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Se ha creado el subscriptor #: "</span> + id);</span><br><span class="line">  }</span><br><span class="line">  buzon(edicion) {</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">"Subscriptor # "</span> + <span class="keyword">this</span>.id + <span class="string">" recibió una nueva edición: "</span> + edicion);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> periodico = <span class="keyword">new</span> Publicador();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> subscriptor1 = <span class="keyword">new</span> Subscriptor(<span class="number">1</span>);</span><br><span class="line"><span class="keyword">const</span> subscriptor2 = <span class="keyword">new</span> Subscriptor(<span class="number">2</span>);</span><br><span class="line"><span class="keyword">const</span> subscriptor3 = <span class="keyword">new</span> Subscriptor(<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"--- Primera edición ---"</span>);</span><br><span class="line"></span><br><span class="line">periodico.subscribe(subscriptor1);</span><br><span class="line"></span><br><span class="line">periodico.subscribe(subscriptor2);</span><br><span class="line"></span><br><span class="line">periodico.notify(<span class="string">"Nueva edicion"</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"--- Segunda edición ---"</span>);</span><br><span class="line"></span><br><span class="line">periodico.subscribe(subscriptor3); </span><br><span class="line"></span><br><span class="line">periodico.notify(<span class="string">"Segunda edicion"</span>); </span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"--- Tercera edición ---"</span>);</span><br><span class="line"></span><br><span class="line">periodico.unsubscribe(subscriptor1); </span><br><span class="line"></span><br><span class="line">periodico.notify(<span class="string">"Tercera edicion"</span>);</span><br></pre></td></tr></tbody></table></figure></div></figure>
+<p>Eso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza del patrón observer. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.</p>
+            
+
+        </div>
+    </div>
+    <div id="post-footer" class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">ETIQUETADO EN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="/tags/Desarrollo-Web/">Desarrollo Web</a> <a class="tag tag--primary tag--small t-link" href="/tags/Javascript/">Javascript</a>
+
+            </div>
+        
+        
+            <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/implementando-observables-a-partir-de-eventos-en-js/" data-tooltip="Implementando Observables a partir de Eventos en JS" aria-label="ANTERIOR: Implementando Observables a partir de Eventos en JS">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/patron-iterador-iterator-pattern-en-javascript/" data-tooltip="Entendiendo el patrón iterador &#34;Iterator pattern&#34; en Javascript" aria-label="SIGUIENTE: Entendiendo el patrón iterador &#34;Iterator pattern&#34; en Javascript">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+        
+        
+            
+                <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+            
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2018 Sebastian Gomez. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/implementando-observables-a-partir-de-eventos-en-js/" data-tooltip="Implementando Observables a partir de Eventos en JS" aria-label="ANTERIOR: Implementando Observables a partir de Eventos en JS">
+                
+                    <i class="fa fa-angle-left" aria-hidden="true"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/patron-iterador-iterator-pattern-en-javascript/" data-tooltip="Entendiendo el patrón iterador &#34;Iterator pattern&#34; en Javascript" aria-label="SIGUIENTE: Entendiendo el patrón iterador &#34;Iterator pattern&#34; en Javascript">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">SIGUIENTE</span>
+                    <i class="fa fa-angle-right" aria-hidden="true"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action hide-lg hide-md hide-sm">
+            <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions" aria-label="Diesen Beitrag teilen">
+                <i class="fa fa-share-alt" aria-hidden="true"></i>
+            </a>
+        </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/" title="Compartir en Facebook">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/" title="Compartir en Twitter">
+                    <i class="fa fa-twitter" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            
+            
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/" title="Compartir en Google+">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+        
+            
+                <li class="post-action">
+                    <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                        <i class="fa fa-comment-o"></i>
+                    </a>
+                </li>
+            
+        
+        <li class="post-action">
+            
+                <a class="post-action-btn btn btn--default" href="#" aria-label="Nach oben">
+            
+                <i class="fa fa-list" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</div>
+
+
+                </div>
+                <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+    <i id="btn-close-shareoptions" class="fa fa-close"></i>
+    <ul class="share-options">
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/">
+                    <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/">
+                    <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
+                </a>
+            </li>
+        
+            
+            
+            <li class="share-option">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/">
+                    <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+            
+        </div>
+        
+    
+        
+            
+                
+    <div id="about">
+        <div id="about-card">
+            <div id="about-btn-close">
+                <i class="fa fa-remove"></i>
+            </div>
+            <main id="main" class="site-main" role="main" style="margin-left: 1em; margin-right: 1em; line-height: 24px; text-rendering: optimizelegibility;">
+                <article id="post-92" class="post-92 page type-page status-publish hentry">
+                    <div class="post-inner-content well">
+                        <header class="entry-header">
+                            <h1 class="entry-title">Sobre mí</h1>
+                        </header>
+                        <!-- .entry-header -->
+                        <div class="entry-content">
+                            <p style="text-align: justify;">
+                                <img
+                                    src="../assets/images/me.png"
+                                    alt="sebastian" width="205" height="300" srcset="../assets/images/me.png"
+                                    sizes="(max-width: 205px) 100vw, 205px"
+                                    style="float: left; margin-right: 1em;">Mi nombre es Sebastián Gómez, soy ingeniero de sistemas
+                                e Informática y Magister en Ingeniería de Sistemas
+                                de la Universidad Nacional de Colombia.</p>
+                            <p style="text-align: justify;">Actualmente trabajo en
+                                <a href="https://www.globant.com/">Globant</a> como Web UI Developer con énfasis en
+                                aplicaciones híbridas y cross compiladas. Soy el
+                                organizador del
+                                <a href="https://www.meetup.com/es-ES/GDG-Medellin">Google Developers Group de Medellín</a>, así que
+                                contactame si quieres dar alguna charla o participar
+                                actuamente de esta comunidad.</p>
+                            <p style="text-align: justify;">He participado en una Startup Colombiana&nbsp;llamada
+                                SponzorMe al lado de
+                                <a href="https://www.carlosrojasblog.com/">Carlos Rojas</a> y fuí participante de
+                                <a href="http://www.startupchile.org/">Startup Chile</a>&nbsp;a pesar de no haber continuado
+                                con esta startup me apasiona el emprendimiento y
+                                me gusta aconsejar y ayudar startups como mentor
+                                técnico. También he trabajado en empresas Americanas
+                                como
+                                <a href="https://studiohyperset.com/">StudioHyperset</a> en Estados Unidos y para
+                                <a href="http://measuredmedium.com/">Measured Medium</a>. Mi interés y mi experiencia
+                                es el desarrollo de web y móvil full stack como Front-end
+                                con Javascript. Me apasiona desarrollar software,
+                                escribir código&nbsp;y&nbsp;enseñar lo que aprendo
+                                día a día.</p>
+                            <p style="text-align: justify;">También he trabajado como profesor en diferentes universidades
+                                en Medellín Colombia, con tematicas&nbsp;relacionadas
+                                con la Inteligencia Artificial, Bases de datos, programación
+                                orientada a objetos, minería de datos, desarrollo
+                                de software, desarrollo móvil y desarrollo web.</p>
+                            <p style="text-align: justify;">Me encanta escribir&nbsp;código rápido y prototipar de
+                                una manera accelerada&nbsp;si quieres ver que&nbsp;hago
+                                día a día puedes darle un vistazo a mi codepen:&nbsp;
+                                <a
+                                    href="https://codepen.io/seagomezar/">https://codepen.io/seagomezar/</a>.</p>
+                            <p style="text-align: justify;">Todos los días trato de crear o participar en proyectos,
+                                la mayoría open source, así que puede chequear mi
+                                GitHub:&nbsp;
+                                <a href="https://github.com/seagomezar">https://github.com/seagomezar</a>.</p>
+                            <p style="text-align: justify;">Mi áreas de investigación académica&nbsp;son: Ingeniería
+                                de software, Ingeniería de requisitos, procesamiento
+                                del lenguaje natural, Ontologías, Bases De Datos,
+                                &nbsp;Machine Learning, Seguimiento de trayectorias&nbsp;y
+                                Modelamiento matemático de formaciones.</p>
+                            <p style="text-align: justify;">Estas son algunas de mis publicaciones académicas mas
+                                recientes:</p>
+                            <ul>
+                                <li style="text-align: left;">
+                                    <a href="http://revistas.unipamplona.edu.co/ojs_viceinves/index.php/RCTA/article/view/288/361"
+                                        target="_blank" rel="noopener">Caracterización de los elementos del diagrama
+                                        de objetivos de KAOS a partir de lenguaje
+                                        natural</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.redalyc.org/articulo.oa?id=47730923003"
+                                        target="_blank" rel="noopener">Analysis and Detection in V-Formations with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.hindawi.com/journals/aaa/2014/241684/"
+                                        target="_blank" rel="noopener">Identification of V-Formations and Circular and
+                                        Doughnut Formations in a Set of Moving Entities
+                                        with Outliers</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.revistasiush.com/index.php/quid/article/download/71/33"
+                                        target="_blank" rel="noopener">Using ontologies for disambiguation of software
+                                        artifacts. in software requirements elicitation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.scielo.cl/scielo.php?pid=S0718-33052015000100007&amp;script=sci_arttext&amp;tlng=e"
+                                        target="_blank" rel="noopener">Extraction of goals and their classification
+                                        in the KAOS model using natural&nbsp;language
+                                        processing</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://link.springer.com/chapter/10.1007/978-3-319-06764-3_5#page-1"
+                                        target="_blank" rel="noopener">Obtaining Agents and Entities from Natural Language</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://www.enggjournals.com/ijet/docs/IJET14-06-06-128.pdf">Filtering Word Senses Using the Least Squares
+                                        Technique for Word Sense Disambiguation</a>
+                                </li>
+                                <li style="text-align: left;">
+                                    <a href="http://revistavirtual.ucn.edu.co/index.php/RevistaUCN/article/view/707/1234">Un modelo de procesamiento de lenguaje natural
+                                        para la&nbsp;detección de errores en requisitos
+                                        de software</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- .entry-content -->
+                </article>
+                <!-- #post-## -->
+            </main>
+        </div>
+    </div>
+        
+        
+<div id="cover" style="background-image:url('/assets/images/cover-v1.2.0.jpg');"></div>
+        <!--SCRIPTS-->
+<script src="/assets/js/script-9mnrhgp6lyjkxpqnqtuo1xev1egf2hnkbf3shwp4sqwnee1molrmgznbmvhm.min.js"></script>
+<!--SCRIPTS END-->
+
+    
+        <script>
+             var disqus_config = function () {
+                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/';
+                 
+                    this.page.identifier = 'entendiendo-el-patron-observador-observer-pattern-en-javascript/';
+                 
+             };
+            (function() {
+                var d = document, s = d.createElement('script');
+                var disqus_shortname = 'sebastiangomez';
+                s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+                s.setAttribute('data-timestamp', +new Date());
+                (d.head || d.body).appendChild(s);
+            })();
+        </script>
+    
+
+
+
+    <script>if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+    .then(function () {console.log('ServiceWorker Register Successfully.')})
+    .catch(function (e) {console.error(e)});
+}
+</script></body>
+</html>
