@@ -26,13 +26,13 @@ var precacheUrls = [];
 
   precacheUrls.push('/implementando-google-cloud-vision-en-nodejs/');
 
+  precacheUrls.push('/Implementando-concat-para-concatenar-observables/');
+
+  precacheUrls.push('/implementando-map-como-operador-en-observables/');
+
+  precacheUrls.push('/angular-2-aplicacion-que-saluda-parte-4/');
+
   precacheUrls.push('/todo-sobre-transiciones-en-css/');
-
-  precacheUrls.push('/todo-sobre-animaciones-en-css/');
-
-  precacheUrls.push('/patron-iterador-iterator-pattern-en-javascript/');
-
-  precacheUrls.push('/implementando-of-como-operador-en-observables/');
 
 toolbox.precache(precacheUrls);
 toolbox.options = {"networkTimeoutSeconds":5};

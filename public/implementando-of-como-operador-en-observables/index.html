@@ -12,17 +12,17 @@
         <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
     
     
-        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+        <link rel="icon" href="https://sebastian-gomez.com/assets/images/FaviconSG.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"\nEn los posts anteriores tuvimos un acercamiento a la implementación del operador filter y el operador map en observables, lo implementamos desde cero similarmente a como lo hace RX.js para entender un poco más la filosofía y el funcionamiento interno. En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable creando el operador “of” que básicamente será un operador de generación de observables de manera que podamos convertir datos en observables, veamos un ejemplo de lo que buscamos:\njs1234567const fancyObservable = Observable.of(5);const fancySubscription = fancyObservable.subscribe({  next(e) {    console.log(e); // “e”   }});\nEn este caso te estarás preguntando, ¿porqué es esto importante? ¿Que sentido tiene convertir una dato ya desenvuelto en un Observable? Bien, la respuesta más inmediata es porque a veces necesitas combinar datos “puros” con datos que provienen de Observables y más adelante veremos maneras de combinar observables más no tenemos manera de combinar datos “puros” con observables sin primero llevar los datos a Observables.\nAntes de empezar la implementación recordemos cual es la definición más pura de un Observable con una función generadora de observables a partir de eventos:\njs12345678910111213141516171819class Observable {    constructor(subscribe) {    this._subscribe = subscribe;  }  subscribe(observer) {    return this._subscribe(observer);  }  static fromEvent(domElement, eventName) {    return new Observable(function subscribe(observer) {      const handler = ev =&gt; { observer.next(ev) };      domElement.addEventListener(eventName, handler);      return {        unsubscribe() {          domElement.removeEventListener(eventName, handler);        }      }    });  }}\nSimilarmente al operador fromEvent debemos crear el operador Of de manera estática es decir que esta función va estar ligada al prototipo (prototype) sin importar si existe o no una instancia de un Observable. Diferente a lo que pasaba con las funciones filter y map que definitivamente solo se invocaban si ya tenían un observable instancia.\njs1static of(value) {…}\nAhora revisando la definición de frontEvent nos damos cuenta que solo esta retornando un valor a la vez cada ves que ocurre un nuevo evento, en nuestro caso para el operador “of” solo habrá un evento ya que hay un único dato e inmediatamente debemos completar el observable:\njs12observer.next(value);observer.complete();\n¿Super fácil no?, ahora pongamos todo junto y tendremos la definición completa de nuestro operador of:js123456789static of(value) {  return new Observable(function subscribe(observer) {    observer.next(value);    observer.complete();    return {      unsubscribe() {}    };  });}\nFinalmente aquí está el ejemplo completo con la implementación de filter, map y nuestro nuevo operador of:\nhttps://codepen.io/seagomezar/pen/rvZZev\nEso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza de los operadores sobre observables. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.","dateCreated":"2018-05-16T04:01:33-05:00","dateModified":"2018-05-24T09:08:40-05:00","datePublished":"2018-05-16T04:01:33-05:00","description":"En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable creando el operador “of” que básicamente será un operador de generación de observables de manera que podamos convertir datos en observables.","headline":"Implementando of como operador en Observables","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/","keywords":"Desarrollo Web, Javascript, Programación Reactiva","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"\nEn los posts anteriores tuvimos un acercamiento a la implementación del operador filter y el operador map en observables, lo implementamos desde cero similarmente a como lo hace RX.js para entender un poco más la filosofía y el funcionamiento interno. En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable creando el operador “of” que básicamente será un operador de generación de observables de manera que podamos convertir datos en observables, veamos un ejemplo de lo que buscamos:\njs1234567const fancyObservable = Observable.of(5);const fancySubscription = fancyObservable.subscribe({  next(e) {    console.log(e); // “e”   }});\nEn este caso te estarás preguntando, ¿porqué es esto importante? ¿Que sentido tiene convertir una dato ya desenvuelto en un Observable? Bien, la respuesta más inmediata es porque a veces necesitas combinar datos “puros” con datos que provienen de Observables y más adelante veremos maneras de combinar observables más no tenemos manera de combinar datos “puros” con observables sin primero llevar los datos a Observables.\nAntes de empezar la implementación recordemos cual es la definición más pura de un Observable con una función generadora de observables a partir de eventos:\njs12345678910111213141516171819class Observable {    constructor(subscribe) {    this._subscribe = subscribe;  }  subscribe(observer) {    return this._subscribe(observer);  }  static fromEvent(domElement, eventName) {    return new Observable(function subscribe(observer) {      const handler = ev =&gt; { observer.next(ev) };      domElement.addEventListener(eventName, handler);      return {        unsubscribe() {          domElement.removeEventListener(eventName, handler);        }      }    });  }}\nSimilarmente al operador fromEvent debemos crear el operador Of de manera estática es decir que esta función va estar ligada al prototipo (prototype) sin importar si existe o no una instancia de un Observable. Diferente a lo que pasaba con las funciones filter y map que definitivamente solo se invocaban si ya tenían un observable instancia.\njs1static of(value) {…}\nAhora revisando la definición de frontEvent nos damos cuenta que solo esta retornando un valor a la vez cada ves que ocurre un nuevo evento, en nuestro caso para el operador “of” solo habrá un evento ya que hay un único dato e inmediatamente debemos completar el observable:\njs12observer.next(value);observer.complete();\n¿Super fácil no?, ahora pongamos todo junto y tendremos la definición completa de nuestro operador of:js123456789static of(value) {  return new Observable(function subscribe(observer) {    observer.next(value);    observer.complete();    return {      unsubscribe() {}    };  });}\nFinalmente aquí está el ejemplo completo con la implementación de filter, map y nuestro nuevo operador of:\nhttps://codepen.io/seagomezar/pen/rvZZev\nEso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza de los operadores sobre observables. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.","dateCreated":"2018-05-16T04:01:33-05:00","dateModified":"2018-05-24T09:08:40-05:00","datePublished":"2018-05-16T04:01:33-05:00","description":"En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable creando el operador “of” que básicamente será un operador de generación de observables de manera que podamos convertir datos en observables.","headline":"Implementando of como operador en Observables","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez.com/implementando-of-como-operador-en-observables/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez.com/implementando-of-como-operador-en-observables/","keywords":"Desarrollo Web, Javascript, Programación Reactiva","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"}</script>
     <meta name="description" content="En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable creando el operador “of” que básicamente será un operador de generación de observables de m">
 <meta name="keywords" content="Desarrollo Web,Javascript,Programación Reactiva">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Implementando of como operador en Observables">
-<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/index.html">
+<meta property="og:url" content="https://sebastian-gomez.com/implementando-of-como-operador-en-observables/index.html">
 <meta property="og:site_name" content="Sebastian Gomez">
 <meta property="og:description" content="En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable creando el operador “of” que básicamente será un operador de generación de observables de m">
 <meta property="og:locale" content="es">
@@ -322,7 +322,8 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    <a class="post-action-btn btn btn--disabled">
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/Implementando-concat-para-concatenar-observables/" data-tooltip="Implementando concat para concatenar observables" aria-label="ANTERIOR: Implementando concat para concatenar observables">
                 
                     <i class="fa fa-angle-left" aria-hidden="true"></i>
                     <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
@@ -349,7 +350,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -357,7 +358,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -365,7 +366,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -417,7 +418,8 @@
         <ul class="post-actions post-action-nav">
             <li class="post-action">
                 
-                    <a class="post-action-btn btn btn--disabled">
+                    
+                    <a class="post-action-btn btn btn--default tooltip--top" href="/Implementando-concat-para-concatenar-observables/" data-tooltip="Implementando concat para concatenar observables" aria-label="ANTERIOR: Implementando concat para concatenar observables">
                 
                     <i class="fa fa-angle-left" aria-hidden="true"></i>
                     <span class="hide-xs hide-sm text-small icon-ml">ANTERIOR</span>
@@ -444,7 +446,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -452,7 +454,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -460,7 +462,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -493,7 +495,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
                 </a>
             </li>
@@ -501,7 +503,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/">
                     <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
                 </a>
             </li>
@@ -509,7 +511,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/implementando-of-como-operador-en-observables/">
                     <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
                 </a>
             </li>
@@ -647,7 +649,7 @@
     
         <script>
              var disqus_config = function () {
-                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/';
+                 this.page.url = 'https://sebastian-gomez.com/implementando-of-como-operador-en-observables/';
                  
                     this.page.identifier = 'implementando-of-como-operador-en-observables/';
                  
@@ -666,7 +668,7 @@
 
 
     <script>if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+  navigator.serviceWorker.register('/sw.js?t=1534282612163')
     .then(function () {console.log('ServiceWorker Register Successfully.')})
     .catch(function (e) {console.error(e)});
 }

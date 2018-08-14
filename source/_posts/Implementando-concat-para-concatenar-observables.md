@@ -10,7 +10,7 @@ thumbnailImagePosition: left
 id: 1001
 categories:
   - Javascript
-date: 2018-04-20 12:16:12
+date: 2018-05-31 12:16:12
 ---
 En este post vamos a implementar una función que nos permita transformar distintos observables en uno solo concatenándolos.
 <!-- excerpt -->

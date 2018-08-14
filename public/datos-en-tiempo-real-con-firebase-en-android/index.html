@@ -12,17 +12,17 @@
         <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
     
     
-        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+        <link rel="icon" href="https://sebastian-gomez.com/assets/images/FaviconSG.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Cuando creamos una aplicación con Android Studio usando Firebase, es importante identificar las opciones que firebase y su librería para Android nos ofrece, esto nos ayudará a sacar el mayor provecho de firebase, en este post voy a mostrarte en detalle como funciona el concepto de “Data Syncronization”.\n\n Si no sabes como utilizar o como dar los primeros pasos con Firebase y Android Studio, te recomiendo que mires este post primero: Introducción a Firebase para Android, allí te enseño como configurar el contexto y todo lo que requieres para empezar correctamente con Firebase en Android Studio. Acceder a los datos de Firebase desde nuestra aplicación es muy simple, simplemente se require declarar una variable de tipo Firebase.\njava1Firebase mRef;\nEsta variable debe ser inicializada con un objeto de tipo Firebase, cuyo constructor recibe la URL de tu endpoint en firebase.google.com, es decir:\njava1mRootRef = new Firebase(\"https://miendpointenfirebase.firebaseio.com\");\nCon esto tenemos enlazada nuestra aplicación con el Endpoint de Firebase. Supongamos que adentro de nuestro enpoint tenemos un objeto llamado mensaje, y queremos mostrar el contenido de dicho objeto en nuestra aplicación (Mira de que te hablo: )   Para mostrar este mensaje en un TextView, podriamos hacer lo siguiente:\n\nObtenemos la referencia al TextView (Recuerda que esto debe estar en la definición de la clase)\n\njava1mTextView = (TextView)findViewById(R.id.textView);\n\nObtenemos la referencia al objeto mensaje de nuestro Endpoint, (Esto debe estar en onStart() )\n\njava1Firebase messagesRef = mRootRef.child(\"messages\");\n\nLe añadimos un listener que nos permita conocer cuando cambia este mensaje:\n\njava1234567891011messagesRef.addValueEventListener(new ValueEventListener() {    @Override    public void onDataChange(DataSnapshot dataSnapshot) {        //Cada vez que el mensaje cambie, se va a llamar este bloque de codigo    }    @Override    public void onCancelled(FirebaseError firebaseError) {    }});\n\nAsignamos el mensaje a nuestro TextView, para eso es necesario añadir exactamente que tipo de dato vamos a recibir, por eso es necesario dentro de la función getValue añadir el String.class:\n\njava12345678910111213messagesRef.addValueEventListener(new ValueEventListener() {    @Override    public void onDataChange(DataSnapshot dataSnapshot) {        //Cada vez que el mensaje cambie, se va a llamar este bloque de codigo        String mensaje = dataSnapshot.getValue(String.class);        mTextView.setText(mensaje);    }    @Override    public void onCancelled(FirebaseError firebaseError) {    }});\nDe esta manera cada vez que cambia el valor del “mensaje” cambiará automáticamente y en tiempo real en nuestra aplicación.               \nA estas alturas te estarás preguntando para que sirve entonces el método onCancelled, simplemente dicho método se ejecutará si ocurre algún problema tratando de acceder al objeto en nuestro Endpoint. \nEso es todo, espero que este post te sea de utilidad, Si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.\n","dateCreated":"2016-05-18T16:17:32-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2016-05-18T16:17:32-05:00","description":"Cuando creamos una aplicación con Android Studio usando Firebase, es importante identificar las opciones que firebase y su librería para Android nos ofrece, esto nos ayudará a sacar el mayor provecho de firebase, en este post voy a mostrarte en detalle como funciona el concepto de “Data Syncronization”.","headline":"Datos en tiempo real con Firebase en Android","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2016/05/397729-full.png"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/","keywords":"Android, Firebase","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2016/05/397729-full.png"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Cuando creamos una aplicación con Android Studio usando Firebase, es importante identificar las opciones que firebase y su librería para Android nos ofrece, esto nos ayudará a sacar el mayor provecho de firebase, en este post voy a mostrarte en detalle como funciona el concepto de “Data Syncronization”.\n\n Si no sabes como utilizar o como dar los primeros pasos con Firebase y Android Studio, te recomiendo que mires este post primero: Introducción a Firebase para Android, allí te enseño como configurar el contexto y todo lo que requieres para empezar correctamente con Firebase en Android Studio. Acceder a los datos de Firebase desde nuestra aplicación es muy simple, simplemente se require declarar una variable de tipo Firebase.\njava1Firebase mRef;\nEsta variable debe ser inicializada con un objeto de tipo Firebase, cuyo constructor recibe la URL de tu endpoint en firebase.google.com, es decir:\njava1mRootRef = new Firebase(\"https://miendpointenfirebase.firebaseio.com\");\nCon esto tenemos enlazada nuestra aplicación con el Endpoint de Firebase. Supongamos que adentro de nuestro enpoint tenemos un objeto llamado mensaje, y queremos mostrar el contenido de dicho objeto en nuestra aplicación (Mira de que te hablo: )   Para mostrar este mensaje en un TextView, podriamos hacer lo siguiente:\n\nObtenemos la referencia al TextView (Recuerda que esto debe estar en la definición de la clase)\n\njava1mTextView = (TextView)findViewById(R.id.textView);\n\nObtenemos la referencia al objeto mensaje de nuestro Endpoint, (Esto debe estar en onStart() )\n\njava1Firebase messagesRef = mRootRef.child(\"messages\");\n\nLe añadimos un listener que nos permita conocer cuando cambia este mensaje:\n\njava1234567891011messagesRef.addValueEventListener(new ValueEventListener() {    @Override    public void onDataChange(DataSnapshot dataSnapshot) {        //Cada vez que el mensaje cambie, se va a llamar este bloque de codigo    }    @Override    public void onCancelled(FirebaseError firebaseError) {    }});\n\nAsignamos el mensaje a nuestro TextView, para eso es necesario añadir exactamente que tipo de dato vamos a recibir, por eso es necesario dentro de la función getValue añadir el String.class:\n\njava12345678910111213messagesRef.addValueEventListener(new ValueEventListener() {    @Override    public void onDataChange(DataSnapshot dataSnapshot) {        //Cada vez que el mensaje cambie, se va a llamar este bloque de codigo        String mensaje = dataSnapshot.getValue(String.class);        mTextView.setText(mensaje);    }    @Override    public void onCancelled(FirebaseError firebaseError) {    }});\nDe esta manera cada vez que cambia el valor del “mensaje” cambiará automáticamente y en tiempo real en nuestra aplicación.               \nA estas alturas te estarás preguntando para que sirve entonces el método onCancelled, simplemente dicho método se ejecutará si ocurre algún problema tratando de acceder al objeto en nuestro Endpoint. \nEso es todo, espero que este post te sea de utilidad, Si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.\n","dateCreated":"2016-05-18T16:17:32-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2016-05-18T16:17:32-05:00","description":"Cuando creamos una aplicación con Android Studio usando Firebase, es importante identificar las opciones que firebase y su librería para Android nos ofrece, esto nos ayudará a sacar el mayor provecho de firebase, en este post voy a mostrarte en detalle como funciona el concepto de “Data Syncronization”.","headline":"Datos en tiempo real con Firebase en Android","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2016/05/397729-full.png"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/","keywords":"Android, Firebase","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2016/05/397729-full.png"}</script>
     <meta name="description" content="Cuando creamos una aplicación con Android Studio usando Firebase, es importante identificar las opciones que firebase y su librería para Android nos ofrece, esto nos ayudará a sacar el mayor provecho">
 <meta name="keywords" content="Android,Firebase">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Datos en tiempo real con Firebase en Android">
-<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/index.html">
+<meta property="og:url" content="https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/index.html">
 <meta property="og:site_name" content="Sebastian Gomez">
 <meta property="og:description" content="Cuando creamos una aplicación con Android Studio usando Firebase, es importante identificar las opciones que firebase y su librería para Android nos ofrece, esto nos ayudará a sacar el mayor provecho">
 <meta property="og:locale" content="es">
@@ -367,7 +367,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -375,7 +375,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -383,7 +383,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -463,7 +463,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -471,7 +471,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -479,7 +479,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -512,7 +512,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
                 </a>
             </li>
@@ -520,7 +520,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/">
                     <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
                 </a>
             </li>
@@ -528,7 +528,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/">
                     <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
                 </a>
             </li>
@@ -666,7 +666,7 @@
     
         <script>
              var disqus_config = function () {
-                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/';
+                 this.page.url = 'https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/';
                  
                     this.page.identifier = 'datos-en-tiempo-real-con-firebase-en-android/';
                  
@@ -685,7 +685,7 @@
 
 
     <script>if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+  navigator.serviceWorker.register('/sw.js?t=1534282612163')
     .then(function () {console.log('ServiceWorker Register Successfully.')})
     .catch(function (e) {console.error(e)});
 }

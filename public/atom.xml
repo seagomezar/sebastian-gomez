@@ -5,9 +5,9 @@
   <subtitle>Desarrollador FrontEnd</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="https://sebastian-gomez-blog.firebaseapp.com/"/>
-  <updated>2018-05-24T14:08:40.990Z</updated>
-  <id>https://sebastian-gomez-blog.firebaseapp.com/</id>
+  <link href="https://sebastian-gomez.com/"/>
+  <updated>2018-08-14T21:34:03.490Z</updated>
+  <id>https://sebastian-gomez.com/</id>
   
   <author>
     <name>Sebastian Gomez</name>
@@ -17,9 +17,35 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>Implementando concat para concatenar observables</title>
+    <link href="https://sebastian-gomez.com/Implementando-concat-para-concatenar-observables/"/>
+    <id>https://sebastian-gomez.com/Implementando-concat-para-concatenar-observables/</id>
+    <published>2018-05-31T12:16:12.000Z</published>
+    <updated>2018-08-14T21:34:03.490Z</updated>
+    
+    <content type="html"><![CDATA[<!-- excerpt --></p><p>En los <a href="https://www.sebastian-gomez.com/desarrollo-web/implementando-map-como-operador-en-observables/" target="_blank" rel="noopener">post anteriores</a> tuvimos un acercamiento a la implementación del operador filter, map y of en observables, lo implementamos desde cero similarmente a como lo hace RX.js para entender un poco más la filosofía y el funcionamiento interno. En este post vamos a implementar una función que nos permita transformar distintos observables en uno solo concatenándolos. Esto puede resultar particularmente útil cuando quieres combinar datos que vienen desde una petición HTTP (FromEvent), con datos que tienes en arreglos o variables. Veamos un ejemplo:</p><figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> sourceOne = Observable.fromEvent(<span class="comment">/** Algo que nos dé 1, 2, 3 por ejemplo*/</span>);</span><br><span class="line"><span class="keyword">const</span> sourceTwo = <span class="keyword">of</span>(<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>);</span><br><span class="line"><span class="keyword">const</span> fuenteDeLaVerdad = Observable.concat(sourceOne, sourceTwo);</span><br><span class="line">fuenteDeLaVerdad.subscribe(<span class="comment">/** lo que queramos hacer aquí*/</span>);</span><br></pre></td></tr></tbody></table></figure></div></figure><p>En este ejemplo queremos combinar datos provenientes de una fuente dinámica con una fuente de datos estática, pero fácilmente podríamos combinar ambas fuentes estáticas o fuentes dinámicas, sin embargo el objetivo es claro, como podemos combinar dos observables. Veamos entonces, necesitamos que sea un método estático que me genere un nuevo observable a partir de los dos observables que reciba como parámetro. Por tanto un primer esqueleto podría ser algo similar a esto. (Recuerda que estamos bajo ES6 y una clase llamada Observable).</p><figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Observable</span> </span>{</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="keyword">static</span> concat(...observables) {</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Observable(</span><br><span class="line">            <span class="function"><span class="keyword">function</span> <span class="title">subscribe</span>(<span class="params">observer</span>) </span>{</span><br><span class="line">                <span class="comment">// Aquí implementaremos la combinación</span></span><br><span class="line">            }</span><br><span class="line">        );</span><br><span class="line">    }</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure><p>Bien, empecemos primero a desentrañar como estamos recibiendo los observables, como verás estamos usando spread operator para recibir tantos observables como queramos, (Acasó dije que solo se podían dos), esto …observables, nos permitirá poder combinar tantos como podamos y adicionalmente nos dará control sobre ellos. Lo primero entonces que necesitamos es poderlos dividir y tomar el primero de los observables, esto lo hacemos mediante dos funciones estándar para arreglos: </p><figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> myObservables = observables.slice();</span><br><span class="line"><span class="keyword">let</span> currentObservable = myObservables.shift();</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sourceOne = Observable.fromEvent(<span class="comment">/** Algo que nos dé 1, 2, 3 por ejemplo*/</span>);</span><br><span class="line"><span class="keyword">const</span> sourceTwo = <span class="keyword">of</span>(<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>);</span><br><span class="line"><span class="keyword">const</span> fuenteDeLaVerdad = Observable.concat(sourceOne, sourceTwo);</span><br><span class="line"><span class="comment">//...</span></span><br><span class="line"><span class="keyword">static</span> concat(...observables) {</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Observable(</span><br><span class="line">        <span class="function"><span class="keyword">function</span> <span class="title">subscribe</span>(<span class="params">observer</span>) </span>{</span><br><span class="line">            <span class="keyword">let</span> myObservables = observables.slice();</span><br><span class="line">            <span class="keyword">let</span> currentObservable = myObservables.shift();</span><br><span class="line">            <span class="comment">// En currentObservable tendriamos sourceOne</span></span><br><span class="line">        }</span><br><span class="line">    );</span><br><span class="line">}</span><br><span class="line"><span class="comment">//...</span></span><br></pre></td></tr></tbody></table></figure></div></figure><p>Bien, ahora solo necesitamos iterar sobre todos los elementos de nuestro observable y posteriormente cuando se acaben los elementos de este observable precipitarnos con el siguiente hasta que ya no queden más observables. Vamos usar recursividad esta vez porque nos permitirá implementar la misma lógica a través de los observables.</p><figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> concat(...observables) {</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Observable(<span class="function"><span class="keyword">function</span> <span class="title">subscribe</span>(<span class="params">observer</span>) </span>{</span><br><span class="line">        <span class="keyword">let</span> myObservables = observables.slice();</span><br><span class="line">        <span class="keyword">let</span> sub = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">let</span> processObservable = <span class="function"><span class="params">()</span> =&gt;</span> {</span><br><span class="line">            <span class="keyword">if</span> (myObservables.length === <span class="number">0</span>) {</span><br><span class="line">                observer.complete();</span><br><span class="line">            } <span class="keyword">else</span> {</span><br><span class="line">                <span class="keyword">let</span> observable = myObservables.shift(); <span class="comment">//Take the next observable in the params.sub = observable.subscribe({</span></span><br><span class="line">                    next(v) {</span><br><span class="line">                        observer.next(v);</span><br><span class="line">                    },</span><br><span class="line">                    error(err) {</span><br><span class="line">                        observer.error(err);</span><br><span class="line">                        sub.unsubscribe();</span><br><span class="line">                    },</span><br><span class="line">                    complete() {</span><br><span class="line">                        processObservable();</span><br><span class="line">                    }</span><br><span class="line">                });</span><br><span class="line">            }</span><br><span class="line">        };</span><br><span class="line">        processObservable();</span><br><span class="line">        <span class="keyword">return</span> {</span><br><span class="line">            sub</span><br><span class="line">        };</span><br><span class="line">    });</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure><p>Como verás solo existe una maneras de salir del primer observable al segundo, que se acaben los datos de dicho observable para lo cual volvemos a llamar la función processObservable y tomamos el siguiente observable de la lista. Si hay un error lo que hacemos inmediatamente es suspender todo el proceso de concatenación si bien en el bloque de código que te muestro arriba esta diseñado de esta manera, también podría haber una variación que podemos programar, para la cual simplemente podemos decirle que continue con el siguiente observable. Es decir:</p><figure class="codeblock codeblock--tabbed"><figcaption><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//...</span></span><br><span class="line">error(err) {</span><br><span class="line">observer.error(err);</span><br><span class="line">sub.unsubscribe();</span><br><span class="line"><span class="comment">// Si falla algo con un observable pasamos al siguiente</span></span><br><span class="line">processObservable();</span><br><span class="line">},</span><br><span class="line"><span class="comment">//...</span></span><br></pre></td></tr></tbody></table></figure></div></figure><p>Finalmente aquí está el ejemplo completo con la implementación de of y nuestro nuevo operador concat:</p><p><a href="https://codepen.io/seagomezar/pen/EpOyRj" target="_blank" rel="noopener">https://codepen.io/seagomezar/pen/EpOyRj</a></p><p>Eso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza de los operadores sobre observables. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;En este post vamos a implementar una función que nos permita transformar distintos observables en uno solo concatenándolos.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
+    
+    
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+    
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
+    
+      <category term="Programación Reactiva" scheme="https://sebastian-gomez.com/tags/Programacion-Reactiva/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Implementando of como operador en Observables</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/implementando-of-como-operador-en-observables/</id>
+    <link href="https://sebastian-gomez.com/implementando-of-como-operador-en-observables/"/>
+    <id>https://sebastian-gomez.com/implementando-of-como-operador-en-observables/</id>
     <published>2018-05-16T09:01:33.000Z</published>
     <updated>2018-05-24T14:08:40.990Z</updated>
     
@@ -31,21 +57,21 @@
     
     </summary>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="Programación Reactiva" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Programacion-Reactiva/"/>
+      <category term="Programación Reactiva" scheme="https://sebastian-gomez.com/tags/Programacion-Reactiva/"/>
     
   </entry>
   
   <entry>
     <title>Implementando filter como operador en Observables</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/</id>
+    <link href="https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/"/>
+    <id>https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/</id>
     <published>2018-04-10T12:16:12.000Z</published>
     <updated>2018-05-24T14:08:40.990Z</updated>
     
@@ -57,21 +83,21 @@
     
     </summary>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="Programación Reactiva" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Programacion-Reactiva/"/>
+      <category term="Programación Reactiva" scheme="https://sebastian-gomez.com/tags/Programacion-Reactiva/"/>
     
   </entry>
   
   <entry>
     <title>Implementando map como operador en Observables</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/implementando-map-como-operador-en-observables/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/implementando-map-como-operador-en-observables/</id>
+    <link href="https://sebastian-gomez.com/implementando-map-como-operador-en-observables/"/>
+    <id>https://sebastian-gomez.com/implementando-map-como-operador-en-observables/</id>
     <published>2018-03-20T11:47:44.000Z</published>
     <updated>2018-05-24T14:08:40.990Z</updated>
     
@@ -83,21 +109,21 @@
     
     </summary>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="Programación Reactiva" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Programacion-Reactiva/"/>
+      <category term="Programación Reactiva" scheme="https://sebastian-gomez.com/tags/Programacion-Reactiva/"/>
     
   </entry>
   
   <entry>
     <title>Implementando Observables a partir de Eventos en JS</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/implementando-observables-a-partir-de-eventos-en-js/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/implementando-observables-a-partir-de-eventos-en-js/</id>
+    <link href="https://sebastian-gomez.com/implementando-observables-a-partir-de-eventos-en-js/"/>
+    <id>https://sebastian-gomez.com/implementando-observables-a-partir-de-eventos-en-js/</id>
     <published>2018-03-07T14:19:28.000Z</published>
     <updated>2018-05-24T14:08:40.990Z</updated>
     
@@ -109,21 +135,21 @@
     
     </summary>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="Programación Reactiva" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Programacion-Reactiva/"/>
+      <category term="Programación Reactiva" scheme="https://sebastian-gomez.com/tags/Programacion-Reactiva/"/>
     
   </entry>
   
   <entry>
     <title>Entendiendo el patrón observador &quot;Observer Pattern&quot; en Javascript</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/</id>
+    <link href="https://sebastian-gomez.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/"/>
+    <id>https://sebastian-gomez.com/entendiendo-el-patron-observador-observer-pattern-en-javascript/</id>
     <published>2018-02-21T10:03:59.000Z</published>
     <updated>2018-05-24T14:08:40.989Z</updated>
     
@@ -135,19 +161,19 @@
     
     </summary>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
   </entry>
   
   <entry>
     <title>Entendiendo el patrón iterador &quot;Iterator pattern&quot; en Javascript</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/</id>
+    <link href="https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/"/>
+    <id>https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/</id>
     <published>2018-02-07T09:22:45.000Z</published>
     <updated>2018-05-24T14:08:40.989Z</updated>
     
@@ -159,21 +185,21 @@
     
     </summary>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="Programación Reactiva" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Programacion-Reactiva/"/>
+      <category term="Programación Reactiva" scheme="https://sebastian-gomez.com/tags/Programacion-Reactiva/"/>
     
   </entry>
   
   <entry>
     <title>Todo sobre Animaciones en CSS</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/todo-sobre-animaciones-en-css/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/todo-sobre-animaciones-en-css/</id>
+    <link href="https://sebastian-gomez.com/todo-sobre-animaciones-en-css/"/>
+    <id>https://sebastian-gomez.com/todo-sobre-animaciones-en-css/</id>
     <published>2018-01-24T12:13:17.000Z</published>
     <updated>2018-05-24T14:04:51.410Z</updated>
     
@@ -185,23 +211,23 @@
     
     </summary>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/categories/CSS/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="CSS3" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS3/"/>
+      <category term="CSS3" scheme="https://sebastian-gomez.com/tags/CSS3/"/>
     
-      <category term="Animaciones" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Animaciones/"/>
+      <category term="Animaciones" scheme="https://sebastian-gomez.com/tags/Animaciones/"/>
     
   </entry>
   
   <entry>
     <title>Todo sobre transiciones en CSS</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/todo-sobre-transiciones-en-css/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/todo-sobre-transiciones-en-css/</id>
+    <link href="https://sebastian-gomez.com/todo-sobre-transiciones-en-css/"/>
+    <id>https://sebastian-gomez.com/todo-sobre-transiciones-en-css/</id>
     <published>2018-01-09T16:31:03.000Z</published>
     <updated>2018-05-24T14:04:51.409Z</updated>
     
@@ -213,23 +239,23 @@
     
     </summary>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/categories/CSS/"/>
     
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="CSS3" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS3/"/>
+      <category term="CSS3" scheme="https://sebastian-gomez.com/tags/CSS3/"/>
     
-      <category term="Transiciones" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Transiciones/"/>
+      <category term="Transiciones" scheme="https://sebastian-gomez.com/tags/Transiciones/"/>
     
   </entry>
   
   <entry>
     <title>Implementando Google Cloud Vision en NodeJS</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/implementando-google-cloud-vision-en-nodejs/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/implementando-google-cloud-vision-en-nodejs/</id>
+    <link href="https://sebastian-gomez.com/implementando-google-cloud-vision-en-nodejs/"/>
+    <id>https://sebastian-gomez.com/implementando-google-cloud-vision-en-nodejs/</id>
     <published>2017-12-26T12:34:35.000Z</published>
     <updated>2018-05-24T14:04:51.409Z</updated>
     
@@ -241,27 +267,27 @@
     
     </summary>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="Desarrollo web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-web/"/>
+      <category term="Desarrollo web" scheme="https://sebastian-gomez.com/tags/Desarrollo-web/"/>
     
-      <category term="CSS3" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS3/"/>
+      <category term="CSS3" scheme="https://sebastian-gomez.com/tags/CSS3/"/>
     
-      <category term="NodeJS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/NodeJS/"/>
+      <category term="NodeJS" scheme="https://sebastian-gomez.com/tags/NodeJS/"/>
     
-      <category term="Inteligencia Artificial" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Inteligencia-Artificial/"/>
+      <category term="Inteligencia Artificial" scheme="https://sebastian-gomez.com/tags/Inteligencia-Artificial/"/>
     
   </entry>
   
   <entry>
     <title>Introducción a Google Vision API</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/introduccion-a-google-vision-api/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/introduccion-a-google-vision-api/</id>
+    <link href="https://sebastian-gomez.com/introduccion-a-google-vision-api/"/>
+    <id>https://sebastian-gomez.com/introduccion-a-google-vision-api/</id>
     <published>2017-12-13T16:27:14.000Z</published>
     <updated>2018-05-24T14:04:51.409Z</updated>
     
@@ -273,21 +299,21 @@
     
     </summary>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/categories/Desarrollo-Web/"/>
     
     
-      <category term="NodeJS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/NodeJS/"/>
+      <category term="NodeJS" scheme="https://sebastian-gomez.com/tags/NodeJS/"/>
     
-      <category term="Inteligencia Artificial" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Inteligencia-Artificial/"/>
+      <category term="Inteligencia Artificial" scheme="https://sebastian-gomez.com/tags/Inteligencia-Artificial/"/>
     
-      <category term="Google" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Google/"/>
+      <category term="Google" scheme="https://sebastian-gomez.com/tags/Google/"/>
     
   </entry>
   
   <entry>
     <title>Datos en tiempo real con Firebase en Android</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/datos-en-tiempo-real-con-firebase-en-android/</id>
+    <link href="https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/"/>
+    <id>https://sebastian-gomez.com/datos-en-tiempo-real-con-firebase-en-android/</id>
     <published>2016-05-18T21:17:32.000Z</published>
     <updated>2018-07-09T18:54:39.549Z</updated>
     
@@ -299,19 +325,19 @@
     
     </summary>
     
-      <category term="Firebase" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Firebase/"/>
+      <category term="Firebase" scheme="https://sebastian-gomez.com/categories/Firebase/"/>
     
     
-      <category term="Android" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Android/"/>
+      <category term="Android" scheme="https://sebastian-gomez.com/tags/Android/"/>
     
-      <category term="Firebase" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Firebase/"/>
+      <category term="Firebase" scheme="https://sebastian-gomez.com/tags/Firebase/"/>
     
   </entry>
   
   <entry>
     <title>Introducción a Firebase para Android</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/introduccion-a-firebase-para-android/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/introduccion-a-firebase-para-android/</id>
+    <link href="https://sebastian-gomez.com/introduccion-a-firebase-para-android/"/>
+    <id>https://sebastian-gomez.com/introduccion-a-firebase-para-android/</id>
     <published>2016-05-10T20:43:57.000Z</published>
     <updated>2018-07-09T18:54:39.549Z</updated>
     
@@ -323,19 +349,19 @@
     
     </summary>
     
-      <category term="Firebase" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Firebase/"/>
+      <category term="Firebase" scheme="https://sebastian-gomez.com/categories/Firebase/"/>
     
     
-      <category term="Android" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Android/"/>
+      <category term="Android" scheme="https://sebastian-gomez.com/tags/Android/"/>
     
-      <category term="Firebase" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Firebase/"/>
+      <category term="Firebase" scheme="https://sebastian-gomez.com/tags/Firebase/"/>
     
   </entry>
   
   <entry>
     <title>Simple Login Con Angular 2 Parte 6</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/simple-login-con-angular-2-parte-6/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/simple-login-con-angular-2-parte-6/</id>
+    <link href="https://sebastian-gomez.com/simple-login-con-angular-2-parte-6/"/>
+    <id>https://sebastian-gomez.com/simple-login-con-angular-2-parte-6/</id>
     <published>2015-11-26T21:22:49.000Z</published>
     <updated>2018-07-09T18:54:39.553Z</updated>
     
@@ -347,25 +373,25 @@
     
     </summary>
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="TypeScript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/TypeScript/"/>
+      <category term="TypeScript" scheme="https://sebastian-gomez.com/tags/TypeScript/"/>
     
   </entry>
   
   <entry>
     <title>Angular, Principios de Typescript Parte 5</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/</id>
+    <link href="https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/"/>
+    <id>https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/</id>
     <published>2015-11-19T21:04:25.000Z</published>
     <updated>2018-05-24T14:04:51.408Z</updated>
     
@@ -377,29 +403,29 @@
     
     </summary>
     
-      <category term="Typescript" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Typescript/"/>
+      <category term="Typescript" scheme="https://sebastian-gomez.com/categories/Typescript/"/>
     
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="AngularJS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/AngularJS/"/>
+      <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="TypeScript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/TypeScript/"/>
+      <category term="TypeScript" scheme="https://sebastian-gomez.com/tags/TypeScript/"/>
     
   </entry>
   
   <entry>
     <title>Angular 2 aplicación que saluda Parte 4</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/angular-2-aplicacion-que-saluda-parte-4/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/angular-2-aplicacion-que-saluda-parte-4/</id>
+    <link href="https://sebastian-gomez.com/angular-2-aplicacion-que-saluda-parte-4/"/>
+    <id>https://sebastian-gomez.com/angular-2-aplicacion-que-saluda-parte-4/</id>
     <published>2015-11-10T15:34:31.000Z</published>
     <updated>2018-07-09T18:54:39.551Z</updated>
     
@@ -411,27 +437,27 @@
     
     </summary>
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="AngularJS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/AngularJS/"/>
+      <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
   </entry>
   
   <entry>
     <title>Angular con Javascript Hola Mundo Parte 3</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/angular-2-con-javascript-hola-mundo-parte-3/</id>
+    <link href="https://sebastian-gomez.com/angular-2-con-javascript-hola-mundo-parte-3/"/>
+    <id>https://sebastian-gomez.com/angular-2-con-javascript-hola-mundo-parte-3/</id>
     <published>2015-11-03T22:51:32.000Z</published>
     <updated>2018-07-09T18:54:39.551Z</updated>
     
@@ -443,27 +469,27 @@
     
     </summary>
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="AngularJS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/AngularJS/"/>
+      <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
-      <category term="Desarrollo web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-web/"/>
+      <category term="Desarrollo web" scheme="https://sebastian-gomez.com/tags/Desarrollo-web/"/>
     
   </entry>
   
   <entry>
     <title>AngularJS vs Angular Parte 2</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/angular-1-vs-angular-2-parte-2/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/angular-1-vs-angular-2-parte-2/</id>
+    <link href="https://sebastian-gomez.com/angular-1-vs-angular-2-parte-2/"/>
+    <id>https://sebastian-gomez.com/angular-1-vs-angular-2-parte-2/</id>
     <published>2015-10-31T21:51:18.000Z</published>
     <updated>2018-05-24T14:04:51.409Z</updated>
     
@@ -475,27 +501,27 @@
     
     </summary>
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="AngularJS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/AngularJS/"/>
+      <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
   </entry>
   
   <entry>
     <title>¿Qué es AngularJs? Parte 1</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/que-es-angularjs-parte-1/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/que-es-angularjs-parte-1/</id>
+    <link href="https://sebastian-gomez.com/que-es-angularjs-parte-1/"/>
+    <id>https://sebastian-gomez.com/que-es-angularjs-parte-1/</id>
     <published>2015-10-31T21:38:36.000Z</published>
     <updated>2018-07-09T18:54:39.549Z</updated>
     
@@ -507,27 +533,27 @@
     
     </summary>
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
-      <category term="Angular" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Angular/"/>
+      <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Desarrollo-Web/"/>
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
     
-      <category term="AngularJS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/AngularJS/"/>
+      <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
-      <category term="CSS" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/CSS/"/>
+      <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
-      <category term="HTML5" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/HTML5/"/>
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
-      <category term="Javascript" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Javascript/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
   </entry>
   
   <entry>
     <title>Sobrecarga de métodos</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/sobrecarga-de-metodos/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/sobrecarga-de-metodos/</id>
+    <link href="https://sebastian-gomez.com/sobrecarga-de-metodos/"/>
+    <id>https://sebastian-gomez.com/sobrecarga-de-metodos/</id>
     <published>2015-10-28T14:45:21.000Z</published>
     <updated>2018-07-09T18:54:39.552Z</updated>
     
@@ -539,36 +565,12 @@
     
     </summary>
     
-      <category term="Java" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Java/"/>
+      <category term="Java" scheme="https://sebastian-gomez.com/categories/Java/"/>
     
     
-      <category term="Java" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Java/"/>
+      <category term="Java" scheme="https://sebastian-gomez.com/tags/Java/"/>
     
-      <category term="Programación orientada a objetos." scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Programacion-orientada-a-objetos/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Entendiendo la herencia con un ejemplo</title>
-    <link href="https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/"/>
-    <id>https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/</id>
-    <published>2015-10-26T18:45:00.000Z</published>
-    <updated>2018-07-09T18:54:39.553Z</updated>
-    
-    <content type="html"><![CDATA[<p>En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Netbeans. <a id="more"></a></p><p>Para comenzar, vamos a definir que es la herencia, aquí voy a dar una definición coloquial, es decir que voy a definir esto con mis palabras.</p><p>-¿Qué es la herencia? à La herencia se utiliza con el fin de ahorrar líneas de código, si en una clase voy a utilizar lo mismo que utilice en otra clase, pues entonces en vez de copiarlo nuevamente, la extiendo y listo, eso es todo.</p><p>La estructura es muy sencilla, simplemente la clase a la cual vamos a copiar el código que ya está escrito en otra le agregamos la palabra <strong>extend</strong> y luego el nombre de la clase de la cual se extiende.</p><p>Ahora sí, vamos a pensar como programadores, supongamos que de la empresa EnlaceDieselTronic nos contrataron para realizar un software sencillo que en su primera etapa debe mostrarles el nombre de los empleados, la edad, el cargo y el horario de trabajo. Nosotros como programadores arriesgados, decidimos desarrollarlo en el lenguaje de programación Java, para desarrollarlo en ese lenguaje necesitamos un entorno de desarrollo apto para este, y nos decidimos por Netbeans.</p><p>Teniendo instalado Java y Netbeans en nuestro equipo, nos disponemos a comenzar el proyecto.</p><p>Lo primero que debemos hacer es crear un nuevo proyecto en <strong>Netbeans</strong>, para eso vamos a la pestaña <strong>file</strong> y luego en <strong>New Project.</strong></p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia1.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia1-244x300.png" alt="therencia1"></a></p><p>En la pestaña <strong>New project</strong> seleccionamos la opción <strong>Java application</strong> y esta a su vez nos arrojará a una nueva ventana.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia2.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia2-300x206.png" alt="therencia2"></a></p><p>En esa nueva ventana ponemos el nombre con el cual queremos bautizar al proyecto, la ruta en donde queremos almacenarlo, y le damos <strong>finish</strong> para finalizar la creación.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia3.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia3-300x206.png" alt="therencia3"></a></p><p>Ahora, ya con el proyecto creado en Netbeans, es nuestra labor comenzar con el proyecto. Para eso crearemos 3 clases, 1 principal llamada <strong>MAIN</strong> que es la que va a ejecutar el proyecto, 2 secundarias llamadas <strong>PERSONA</strong> y <strong>EMPLEADO.</strong></p><p>Para eso damos clic derecho en el paquete en donde está guardado el proyecto, luego en <strong>New</strong>, y por último en <strong>Java Class.</strong></p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia4.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia4-300x192.png" alt="therencia4"></a></p><p>Aquí ya nos disponemos a nombrar las clases que vamos a crear, recordemos que son la clase Persona y la clase Empleado.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia5.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia5-300x207.png" alt="therencia5"></a></p><p>Lo primero que vamos a hacer es crearle atributos a la clase persona, que será la clase básica para el proyecto que le vamos a desarrollar a EnlaceDieselTronic.</p><p>La clase Persona será una clase padre, de esta heredará la clase Empleado. Por consiguiente, los atributos de la clase persona deberán ser usados en la clase Empleado.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia6.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia6-300x126.png" alt="therencia6"></a></p><p>Como ya declaramos los atributos Nombre y Edad que son los más generales para una clase padre, nos disponemos a generar el constructor para inicializar estos datos.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia7.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia7-300x177.png" alt="therencia7"></a> Generado el constructor, vamos a retornar un mensaje con los atributos anteriormente generados. <a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia8.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia8-300x200.png" alt="therencia8"></a></p><p>Ahora, nos disponemos a crear la clase empleado, en esta clase necesitamos el atributo <strong>Nombre</strong>, <strong>Edad</strong> y <strong>Cargo</strong>, aquí viene el sentido que tiene la Herencia, ¿Qué sentido tiene que en la clase empleado creemos el atributo <strong>Nombre</strong> y <strong>Edad</strong> sabiendo que en la clase básica ya los tiene declarados?, este es el sentido que tiene la Herencia, ahorrar líneas de código.</p><p>En la siguiente imagen mostramos cual es la estructura que se debe seguir para aplicar la herencia.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia9.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia9-300x117.png" alt="therencia9"></a></p><p>Valga la pena aclarar que el error que aquí aparece es debido a que todavía no hemos declarado el constructor.</p><p>Ya declarado el constructor y agregados los atributos Cargo y Horario que necesitamos añadir, debería quedar así:</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia10.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia10-300x193.png" alt="therencia10"></a></p><p>Ahora nos falta el mensaje que vamos a retornar, debemos tener en cuenta que en la clase Persona ya teníamos un mensaje, y ese mismo debemos añadirlo al que vamos a crear aquí:</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia11.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia11-300x179.png" alt="therencia11"></a></p><p>Aquí comenzamos con un concepto antiguo y un nuevo concepto, el <strong>this</strong> y el <strong>super.</strong> El <strong>this</strong> es un apuntador al dato mismo donde este. Por esto, cuando ponemos el <strong>&lt;this.Cargo = Cargo&gt;</strong> o el <strong>&lt;this.Horario = Horario&gt;</strong> estamos apuntando a los atributos <strong>Cargo</strong> y <strong>Horario</strong> en donde estén de la clase.</p><p>Ahora, el <strong>Super</strong> lo utilizamos cuando una clase herede de otra, y en la primera <strong>(Clase hija)</strong> defina un método que ya está definido en la segunda <strong>(Clase madre).</strong> El <strong>Super</strong> nos sirve para indicar que nos referimos al método de la clase Madre.</p><p>Ya entendido el <strong>Super</strong> y el <strong>This</strong>, y terminadas ambas clases, nos disponemos a crear el <strong>Main</strong>, lo más sencillo por desarrollar.</p><p>Aquí creamos el objeto Empleado, no tenemos necesidad de crear el Objeto para la <strong>Clase Persona</strong>, pues los parámetros que allí tenemos están incluidos en la <strong>Clase Empleado.</strong></p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia12.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia12-300x187.png" alt="therencia12"></a></p><p>Aquí vemos que nos arroja un error, esto se debe a que no le estamos enviado parámetros.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia13.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia13-300x192.png" alt="therencia13"></a></p><p>Ya al enviarle parámetros el error desaparece.</p><p>Lo único que nos falta para finalizar el programa es imprimir el mensaje.</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia14.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia14-300x185.png" alt="therencia14"></a></p><p>Aquí en la impresión del mensaje, lo que hacemos es poner la referencia de la clase Empleado que es donde está el mensaje completo (Vale la pena recordad que en la clase Persona también retornamos un mensaje, pero este lo estamos invocando desde la clase Empleado y lo estamos añadiendo al que allí pensamos retornar).</p><p>El resultado de la ejecución del programa es el siguiente:</p><p><a href="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia15.png" target="_blank" rel="noopener"><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/therencia15-300x72.png" alt="therencia15"></a></p><p>Listo, hemos terminado nuestra aplicación orientada a objetos y aplicando correctamente el concepto de herencia.</p><p>Espero que este tutorial un poco más práctico les haya sido de mas ayuda, recuerda “la práctica hace la perfección”, también si quieres aprender mas sobre el tema te invito a que veas <a href="http://www.sebastian-gomez.com/java/herencia-y-polimorfismo/" target="_blank" rel="noopener">este post</a>.</p><p>Escríbeme si tienes alguna duda y no olvides si te ha gustado este tutorial compartelo!</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Netbeans.
-    
-    </summary>
-    
-      <category term="Java" scheme="https://sebastian-gomez-blog.firebaseapp.com/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Java/"/>
-    
-      <category term="Programación orientada a objetos." scheme="https://sebastian-gomez-blog.firebaseapp.com/tags/Programacion-orientada-a-objetos/"/>
+      <category term="Programación orientada a objetos." scheme="https://sebastian-gomez.com/tags/Programacion-orientada-a-objetos/"/>
     
   </entry>
   

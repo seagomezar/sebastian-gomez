@@ -12,17 +12,17 @@
         <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
     
     
-        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+        <link rel="icon" href="https://sebastian-gomez.com/assets/images/FaviconSG.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"\nEl patrón iterador es uno de los patrones de diseño de software más usado en Javascript y también uno de los más sencillos. Es un patrón de comportamiento ya que define como se comunican objetos entre si. De él se extienden importantes aplicaciones que pueden ayudar a definir mejores arquitecturas en aplicaciones web, por lo que su uso y estudio es altamente recomendado. En este post aprenderemos como implementarlo en Javascript y en que situaciones lo podemos usar.\n\nEmpecemos por definir este patrón. Básicamente todos hemos usado arrays de esta forma [1,2,3,4] y usualmente si queremos recorrerlo nos inclinamos rápidamente por usar una estructura cíclica como “for” o “while” sin embargo esto hace que el código sea un poco mas imperativa y menos declarativa haciendo que no tengamos tanto control con cada dato unitario dentro del arreglo. Desde este punto es donde empieza a cobrar fuerza este patron iterador ya que básicamente lo que nos provee es una manera de recorrer el arreglo de una manera declarativa. El principal principio de este patrón es permitirnos recorrer colecciones de objetos de una manera que podamos decidir cuando queremos el siguiente objeto y cuando no. Para ello obligatoriamente deben existir tres métodos dentro del iterador:\n\nfirst() –&gt; Retorna siempre el primer objeto de la colección.\nnext() –&gt; Retorna el siguiente objeto de la colección si existe.\ncurrent() –&gt; Retorna el objeto actual de la colección sobre el estamos parado.\n\nEmpecemos entonces por definir una clase llamada iterator con estos tres métodos:\njs12345678910111213141516class Iterator {  constructor(collection) {    this.index = 0;    this.collection = collection;  }  first() {    return this.collection\\[0\\];  }  next() {    this.index += 1;    return this.collection\\[this.index\\];  }  current() {    return this.collection\\[this.index\\];  }}\nComo ves usando ES6 hemos definido una clase que permite hacer operaciones muy básicas sobre el array, pero siempre conservando cual es el índice sobre que esta la colección en todo momento. Esto nos permitirá fácilmente movernos sobre ella. Adicionalmente aunque no es obligatorio en la implementación de este patrón. Si es altamente recomendado añadir dos métodos utilitarios mas sobre la clase iterador. Estos son:\n\nhasNext() —&gt; Retorna true si hay mas items disponibles en la colección.\nreset() —&gt; Permite reiniciar el indice para iterar de nuevo sobre la colección.\n\nVeamos entonces como sería la implementación:\njs1234567891011class Iterator {  …  reset() {    this.index = 0;  }  hasNext() {    return (this.collection.length &gt; this.index +1);  }  …}\nSuper simple!, una vez que tu clase esté definida puedes usar prácticamente cualquier tipo de array para construir tu iterador y operar sobre él. Veamos un ejemplo de su uso práctico usando un ciclo while:\njs1234567// Usando un ciclo whileconst arr = \\[1,2,3,4,5\\];const arrayIterator = new Iterator(arr);console.log(arrayIterator.first());while (arrayIterator.hasNext()) {  console.log(arrayIterator.next());}\nDe esta manera queda totalmente completo el patrón iterador. Como vez es muy fácil implementar el patrón iterador y su utilidad es casi inmediata. A continuación podrás observar todo el código completo de este ejemplo:\njs1234567891011121314151617181920212223242526272829303132333435363738class Iterator {    constructor(collection) {    this.index = 0;    this.collection = collection;  }  first() {    return this.collection\\[0\\];  }  next() {    this.index += 1;    return this.collection\\[this.index\\];  }  current() {    return this.collection\\[this.index\\];  }    reset() {    this.index = 0;  }  hasNext() {      return (this.index + 1 &lt; this.collection.length );  }}const arr = \\[1,2,3,4,5\\];const arrayIterator = new Iterator(arr);console.log(arrayIterator.first());while (arrayIterator.hasNext()) {  console.log(arrayIterator.next());}\nEso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza del patrón iterator. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.","dateCreated":"2018-02-07T04:22:45-05:00","dateModified":"2018-05-24T09:08:40-05:00","datePublished":"2018-02-07T04:22:45-05:00","description":"En este post aprenderemos como implementar el patrón iterador en Javascript y en que situaciones lo podemos usar.","headline":"Entendiendo el patrón iterador \"Iterator pattern\" en Javascript","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&ssl=1"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/","keywords":"Desarrollo Web, Javascript, Programación Reactiva","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&ssl=1"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"\nEl patrón iterador es uno de los patrones de diseño de software más usado en Javascript y también uno de los más sencillos. Es un patrón de comportamiento ya que define como se comunican objetos entre si. De él se extienden importantes aplicaciones que pueden ayudar a definir mejores arquitecturas en aplicaciones web, por lo que su uso y estudio es altamente recomendado. En este post aprenderemos como implementarlo en Javascript y en que situaciones lo podemos usar.\n\nEmpecemos por definir este patrón. Básicamente todos hemos usado arrays de esta forma [1,2,3,4] y usualmente si queremos recorrerlo nos inclinamos rápidamente por usar una estructura cíclica como “for” o “while” sin embargo esto hace que el código sea un poco mas imperativa y menos declarativa haciendo que no tengamos tanto control con cada dato unitario dentro del arreglo. Desde este punto es donde empieza a cobrar fuerza este patron iterador ya que básicamente lo que nos provee es una manera de recorrer el arreglo de una manera declarativa. El principal principio de este patrón es permitirnos recorrer colecciones de objetos de una manera que podamos decidir cuando queremos el siguiente objeto y cuando no. Para ello obligatoriamente deben existir tres métodos dentro del iterador:\n\nfirst() –&gt; Retorna siempre el primer objeto de la colección.\nnext() –&gt; Retorna el siguiente objeto de la colección si existe.\ncurrent() –&gt; Retorna el objeto actual de la colección sobre el estamos parado.\n\nEmpecemos entonces por definir una clase llamada iterator con estos tres métodos:\njs12345678910111213141516class Iterator {  constructor(collection) {    this.index = 0;    this.collection = collection;  }  first() {    return this.collection\\[0\\];  }  next() {    this.index += 1;    return this.collection\\[this.index\\];  }  current() {    return this.collection\\[this.index\\];  }}\nComo ves usando ES6 hemos definido una clase que permite hacer operaciones muy básicas sobre el array, pero siempre conservando cual es el índice sobre que esta la colección en todo momento. Esto nos permitirá fácilmente movernos sobre ella. Adicionalmente aunque no es obligatorio en la implementación de este patrón. Si es altamente recomendado añadir dos métodos utilitarios mas sobre la clase iterador. Estos son:\n\nhasNext() —&gt; Retorna true si hay mas items disponibles en la colección.\nreset() —&gt; Permite reiniciar el indice para iterar de nuevo sobre la colección.\n\nVeamos entonces como sería la implementación:\njs1234567891011class Iterator {  …  reset() {    this.index = 0;  }  hasNext() {    return (this.collection.length &gt; this.index +1);  }  …}\nSuper simple!, una vez que tu clase esté definida puedes usar prácticamente cualquier tipo de array para construir tu iterador y operar sobre él. Veamos un ejemplo de su uso práctico usando un ciclo while:\njs1234567// Usando un ciclo whileconst arr = \\[1,2,3,4,5\\];const arrayIterator = new Iterator(arr);console.log(arrayIterator.first());while (arrayIterator.hasNext()) {  console.log(arrayIterator.next());}\nDe esta manera queda totalmente completo el patrón iterador. Como vez es muy fácil implementar el patrón iterador y su utilidad es casi inmediata. A continuación podrás observar todo el código completo de este ejemplo:\njs1234567891011121314151617181920212223242526272829303132333435363738class Iterator {    constructor(collection) {    this.index = 0;    this.collection = collection;  }  first() {    return this.collection\\[0\\];  }  next() {    this.index += 1;    return this.collection\\[this.index\\];  }  current() {    return this.collection\\[this.index\\];  }    reset() {    this.index = 0;  }  hasNext() {      return (this.index + 1 &lt; this.collection.length );  }}const arr = \\[1,2,3,4,5\\];const arrayIterator = new Iterator(arr);console.log(arrayIterator.first());while (arrayIterator.hasNext()) {  console.log(arrayIterator.next());}\nEso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza del patrón iterator. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.","dateCreated":"2018-02-07T04:22:45-05:00","dateModified":"2018-05-24T09:08:40-05:00","datePublished":"2018-02-07T04:22:45-05:00","description":"En este post aprenderemos como implementar el patrón iterador en Javascript y en que situaciones lo podemos usar.","headline":"Entendiendo el patrón iterador \"Iterator pattern\" en Javascript","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&ssl=1"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/","keywords":"Desarrollo Web, Javascript, Programación Reactiva","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/02/javascript-736400_960_720.png?resize=150%2C150&ssl=1"}</script>
     <meta name="description" content="En este post aprenderemos como implementar el patrón iterador en Javascript y en que situaciones lo podemos usar.">
 <meta name="keywords" content="Desarrollo Web,Javascript,Programación Reactiva">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Entendiendo el patrón iterador &quot;Iterator pattern&quot; en Javascript">
-<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/index.html">
+<meta property="og:url" content="https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/index.html">
 <meta property="og:site_name" content="Sebastian Gomez">
 <meta property="og:description" content="En este post aprenderemos como implementar el patrón iterador en Javascript y en que situaciones lo podemos usar.">
 <meta property="og:locale" content="es">
@@ -361,7 +361,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -369,7 +369,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -377,7 +377,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -457,7 +457,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -465,7 +465,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -473,7 +473,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -506,7 +506,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
                 </a>
             </li>
@@ -514,7 +514,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/">
                     <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
                 </a>
             </li>
@@ -522,7 +522,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/">
                     <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
                 </a>
             </li>
@@ -660,7 +660,7 @@
     
         <script>
              var disqus_config = function () {
-                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/patron-iterador-iterator-pattern-en-javascript/';
+                 this.page.url = 'https://sebastian-gomez.com/patron-iterador-iterator-pattern-en-javascript/';
                  
                     this.page.identifier = 'patron-iterador-iterator-pattern-en-javascript/';
                  
@@ -679,7 +679,7 @@
 
 
     <script>if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+  navigator.serviceWorker.register('/sw.js?t=1534282612163')
     .then(function () {console.log('ServiceWorker Register Successfully.')})
     .catch(function (e) {console.error(e)});
 }

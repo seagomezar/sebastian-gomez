@@ -12,17 +12,17 @@
         <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
     
     
-        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+        <link rel="icon" href="https://sebastian-gomez.com/assets/images/FaviconSG.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Netbeans. \nPara comenzar, vamos a definir que es la herencia, aquí voy a dar una definición coloquial, es decir que voy a definir esto con mis palabras.\n-¿Qué es la herencia? à La herencia se utiliza con el fin de ahorrar líneas de código, si en una clase voy a utilizar lo mismo que utilice en otra clase, pues entonces en vez de copiarlo nuevamente, la extiendo y listo, eso es todo.\nLa estructura es muy sencilla, simplemente la clase a la cual vamos a copiar el código que ya está escrito en otra le agregamos la palabra extend y luego el nombre de la clase de la cual se extiende.\nAhora sí, vamos a pensar como programadores, supongamos que de la empresa EnlaceDieselTronic nos contrataron para realizar un software sencillo que en su primera etapa debe mostrarles el nombre de los empleados, la edad, el cargo y el horario de trabajo. Nosotros como programadores arriesgados, decidimos desarrollarlo en el lenguaje de programación Java, para desarrollarlo en ese lenguaje necesitamos un entorno de desarrollo apto para este, y nos decidimos por Netbeans.\nTeniendo instalado Java y Netbeans en nuestro equipo, nos disponemos a comenzar el proyecto.\nLo primero que debemos hacer es crear un nuevo proyecto en Netbeans, para eso vamos a la pestaña file y luego en New Project.\n\nEn la pestaña New project seleccionamos la opción Java application y esta a su vez nos arrojará a una nueva ventana.\n\nEn esa nueva ventana ponemos el nombre con el cual queremos bautizar al proyecto, la ruta en donde queremos almacenarlo, y le damos finish para finalizar la creación.\n\nAhora, ya con el proyecto creado en Netbeans, es nuestra labor comenzar con el proyecto. Para eso crearemos 3 clases, 1 principal llamada MAIN que es la que va a ejecutar el proyecto, 2 secundarias llamadas PERSONA y EMPLEADO.\nPara eso damos clic derecho en el paquete en donde está guardado el proyecto, luego en New, y por último en Java Class.\n\nAquí ya nos disponemos a nombrar las clases que vamos a crear, recordemos que son la clase Persona y la clase Empleado.\n\nLo primero que vamos a hacer es crearle atributos a la clase persona, que será la clase básica para el proyecto que le vamos a desarrollar a EnlaceDieselTronic.\nLa clase Persona será una clase padre, de esta heredará la clase Empleado. Por consiguiente, los atributos de la clase persona deberán ser usados en la clase Empleado.\n\nComo ya declaramos los atributos Nombre y Edad que son los más generales para una clase padre, nos disponemos a generar el constructor para inicializar estos datos.\n Generado el constructor, vamos a retornar un mensaje con los atributos anteriormente generados. \nAhora, nos disponemos a crear la clase empleado, en esta clase necesitamos el atributo Nombre, Edad y Cargo, aquí viene el sentido que tiene la Herencia, ¿Qué sentido tiene que en la clase empleado creemos el atributo Nombre y Edad sabiendo que en la clase básica ya los tiene declarados?, este es el sentido que tiene la Herencia, ahorrar líneas de código.\nEn la siguiente imagen mostramos cual es la estructura que se debe seguir para aplicar la herencia.\n\nValga la pena aclarar que el error que aquí aparece es debido a que todavía no hemos declarado el constructor.\nYa declarado el constructor y agregados los atributos Cargo y Horario que necesitamos añadir, debería quedar así:\n\nAhora nos falta el mensaje que vamos a retornar, debemos tener en cuenta que en la clase Persona ya teníamos un mensaje, y ese mismo debemos añadirlo al que vamos a crear aquí:\n\nAquí comenzamos con un concepto antiguo y un nuevo concepto, el this y el super. El this es un apuntador al dato mismo donde este. Por esto, cuando ponemos el &lt;this.Cargo = Cargo&gt; o el &lt;this.Horario = Horario&gt; estamos apuntando a los atributos Cargo y Horario en donde estén de la clase.\nAhora, el Super lo utilizamos cuando una clase herede de otra, y en la primera (Clase hija) defina un método que ya está definido en la segunda (Clase madre). El Super nos sirve para indicar que nos referimos al método de la clase Madre.\nYa entendido el Super y el This, y terminadas ambas clases, nos disponemos a crear el Main, lo más sencillo por desarrollar.\nAquí creamos el objeto Empleado, no tenemos necesidad de crear el Objeto para la Clase Persona, pues los parámetros que allí tenemos están incluidos en la Clase Empleado.\n\nAquí vemos que nos arroja un error, esto se debe a que no le estamos enviado parámetros.\n\nYa al enviarle parámetros el error desaparece.\nLo único que nos falta para finalizar el programa es imprimir el mensaje.\n\nAquí en la impresión del mensaje, lo que hacemos es poner la referencia de la clase Empleado que es donde está el mensaje completo (Vale la pena recordad que en la clase Persona también retornamos un mensaje, pero este lo estamos invocando desde la clase Empleado y lo estamos añadiendo al que allí pensamos retornar).\nEl resultado de la ejecución del programa es el siguiente:\n\nListo, hemos terminado nuestra aplicación orientada a objetos y aplicando correctamente el concepto de herencia.\nEspero que este tutorial un poco más práctico les haya sido de mas ayuda, recuerda “la práctica hace la perfección”, también si quieres aprender mas sobre el tema te invito a que veas este post.\nEscríbeme si tienes alguna duda y no olvides si te ha gustado este tutorial compartelo!\n","dateCreated":"2015-10-26T13:45:00-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-10-26T13:45:00-05:00","description":"En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Netbeans.","headline":"Entendiendo la herencia con un ejemplo","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/","keywords":"Java, Programación orientada a objetos."}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Netbeans. \nPara comenzar, vamos a definir que es la herencia, aquí voy a dar una definición coloquial, es decir que voy a definir esto con mis palabras.\n-¿Qué es la herencia? à La herencia se utiliza con el fin de ahorrar líneas de código, si en una clase voy a utilizar lo mismo que utilice en otra clase, pues entonces en vez de copiarlo nuevamente, la extiendo y listo, eso es todo.\nLa estructura es muy sencilla, simplemente la clase a la cual vamos a copiar el código que ya está escrito en otra le agregamos la palabra extend y luego el nombre de la clase de la cual se extiende.\nAhora sí, vamos a pensar como programadores, supongamos que de la empresa EnlaceDieselTronic nos contrataron para realizar un software sencillo que en su primera etapa debe mostrarles el nombre de los empleados, la edad, el cargo y el horario de trabajo. Nosotros como programadores arriesgados, decidimos desarrollarlo en el lenguaje de programación Java, para desarrollarlo en ese lenguaje necesitamos un entorno de desarrollo apto para este, y nos decidimos por Netbeans.\nTeniendo instalado Java y Netbeans en nuestro equipo, nos disponemos a comenzar el proyecto.\nLo primero que debemos hacer es crear un nuevo proyecto en Netbeans, para eso vamos a la pestaña file y luego en New Project.\n\nEn la pestaña New project seleccionamos la opción Java application y esta a su vez nos arrojará a una nueva ventana.\n\nEn esa nueva ventana ponemos el nombre con el cual queremos bautizar al proyecto, la ruta en donde queremos almacenarlo, y le damos finish para finalizar la creación.\n\nAhora, ya con el proyecto creado en Netbeans, es nuestra labor comenzar con el proyecto. Para eso crearemos 3 clases, 1 principal llamada MAIN que es la que va a ejecutar el proyecto, 2 secundarias llamadas PERSONA y EMPLEADO.\nPara eso damos clic derecho en el paquete en donde está guardado el proyecto, luego en New, y por último en Java Class.\n\nAquí ya nos disponemos a nombrar las clases que vamos a crear, recordemos que son la clase Persona y la clase Empleado.\n\nLo primero que vamos a hacer es crearle atributos a la clase persona, que será la clase básica para el proyecto que le vamos a desarrollar a EnlaceDieselTronic.\nLa clase Persona será una clase padre, de esta heredará la clase Empleado. Por consiguiente, los atributos de la clase persona deberán ser usados en la clase Empleado.\n\nComo ya declaramos los atributos Nombre y Edad que son los más generales para una clase padre, nos disponemos a generar el constructor para inicializar estos datos.\n Generado el constructor, vamos a retornar un mensaje con los atributos anteriormente generados. \nAhora, nos disponemos a crear la clase empleado, en esta clase necesitamos el atributo Nombre, Edad y Cargo, aquí viene el sentido que tiene la Herencia, ¿Qué sentido tiene que en la clase empleado creemos el atributo Nombre y Edad sabiendo que en la clase básica ya los tiene declarados?, este es el sentido que tiene la Herencia, ahorrar líneas de código.\nEn la siguiente imagen mostramos cual es la estructura que se debe seguir para aplicar la herencia.\n\nValga la pena aclarar que el error que aquí aparece es debido a que todavía no hemos declarado el constructor.\nYa declarado el constructor y agregados los atributos Cargo y Horario que necesitamos añadir, debería quedar así:\n\nAhora nos falta el mensaje que vamos a retornar, debemos tener en cuenta que en la clase Persona ya teníamos un mensaje, y ese mismo debemos añadirlo al que vamos a crear aquí:\n\nAquí comenzamos con un concepto antiguo y un nuevo concepto, el this y el super. El this es un apuntador al dato mismo donde este. Por esto, cuando ponemos el &lt;this.Cargo = Cargo&gt; o el &lt;this.Horario = Horario&gt; estamos apuntando a los atributos Cargo y Horario en donde estén de la clase.\nAhora, el Super lo utilizamos cuando una clase herede de otra, y en la primera (Clase hija) defina un método que ya está definido en la segunda (Clase madre). El Super nos sirve para indicar que nos referimos al método de la clase Madre.\nYa entendido el Super y el This, y terminadas ambas clases, nos disponemos a crear el Main, lo más sencillo por desarrollar.\nAquí creamos el objeto Empleado, no tenemos necesidad de crear el Objeto para la Clase Persona, pues los parámetros que allí tenemos están incluidos en la Clase Empleado.\n\nAquí vemos que nos arroja un error, esto se debe a que no le estamos enviado parámetros.\n\nYa al enviarle parámetros el error desaparece.\nLo único que nos falta para finalizar el programa es imprimir el mensaje.\n\nAquí en la impresión del mensaje, lo que hacemos es poner la referencia de la clase Empleado que es donde está el mensaje completo (Vale la pena recordad que en la clase Persona también retornamos un mensaje, pero este lo estamos invocando desde la clase Empleado y lo estamos añadiendo al que allí pensamos retornar).\nEl resultado de la ejecución del programa es el siguiente:\n\nListo, hemos terminado nuestra aplicación orientada a objetos y aplicando correctamente el concepto de herencia.\nEspero que este tutorial un poco más práctico les haya sido de mas ayuda, recuerda “la práctica hace la perfección”, también si quieres aprender mas sobre el tema te invito a que veas este post.\nEscríbeme si tienes alguna duda y no olvides si te ha gustado este tutorial compartelo!\n","dateCreated":"2015-10-26T13:45:00-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-10-26T13:45:00-05:00","description":"En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Netbeans.","headline":"Entendiendo la herencia con un ejemplo","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/","keywords":"Java, Programación orientada a objetos."}</script>
     <meta name="description" content="En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Ne">
 <meta name="keywords" content="Java,Programación orientada a objetos.">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Entendiendo la herencia con un ejemplo">
-<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/index.html">
+<meta property="og:url" content="https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/index.html">
 <meta property="og:site_name" content="Sebastian Gomez">
 <meta property="og:description" content="En esta guía de ayuda nos disponemos a repasar temas fundamentales en la programación orientada a objetos como lo es la Herencia. Para tal fin, vamos a crear un programa en el entorno de desarrollo Ne">
 <meta property="og:locale" content="es">
@@ -396,7 +396,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -404,7 +404,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -412,7 +412,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -492,7 +492,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -500,7 +500,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -508,7 +508,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -541,7 +541,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
                 </a>
             </li>
@@ -549,7 +549,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/">
                     <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
                 </a>
             </li>
@@ -557,7 +557,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/">
                     <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
                 </a>
             </li>
@@ -695,7 +695,7 @@
     
         <script>
              var disqus_config = function () {
-                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/entendiendo-la-herencia-con-un-ejemplo/';
+                 this.page.url = 'https://sebastian-gomez.com/entendiendo-la-herencia-con-un-ejemplo/';
                  
                     this.page.identifier = 'entendiendo-la-herencia-con-un-ejemplo/';
                  
@@ -714,7 +714,7 @@
 
 
     <script>if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+  navigator.serviceWorker.register('/sw.js?t=1534282612163')
     .then(function () {console.log('ServiceWorker Register Successfully.')})
     .catch(function (e) {console.error(e)});
 }

@@ -12,17 +12,17 @@
         <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
     
     
-        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+        <link rel="icon" href="https://sebastian-gomez.com/assets/images/FaviconSG.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Un VHOST o virtual host, es un apuntador interno que tendremos en nuestro computador a alguna aplicación web nuestra bajo un dominio o nombre que deseemos establecerle. Es decir si tenemos un proyecto en una carpeta dentro de XAMPP C:/xampp/htdocs/my-proyecto y su respectiva dirección local http://localhost/my-proyecto podremos facilmente crear un dominio ficticio dentro de nuestra máquina a dicho proyecto por ejemplo www.my-proyecto.com (esto solo será accesible desde nuestra máquina). En este sencillo post mostraré un pequeño tutorial de como crear un Virtual Host (VHost) en Windows y un servidor Apache como XAMPP. Como prerequisito entonces tendremos que tener instalado XAMPP (el link es este ). \n\nUbicar la carpeta C:\\Windows\\System32\\Drivers\\etc\nAbrir el archivo hosts con un editor de texto.\nAñadir la siguiente linea al final del archivo\n\n1127.0.0.1       www.my-proyecto.com\nLa url www.my-proyecto.com puede ser cambiada por el nombre que se desee, e incluso es posible tener varios subdominios, por ejemplo testing.my-proyecto-com, production.my-proyecto.com, etc etc y la dirección 127.0.0.1 nunca cambia a menos que tu hayas cambiado la configuración de hosts de windows. Hecho lo anterior entonces debemos abrir XAMPP y se mostrara la consola inicial:    En esta consola haremos click sobre el boton config de la fila correspondiente al Apache y seleccionaremos el archivo httdp.conf, hecho esto se nos abrirá una documento de texto. Iremos hasta el final del documento.\n#El signo de numeral permite ingresar comentarios\n1234&lt;VirtualHost *:80&gt;DocumentRoot /xampp/htdocs/my-proyectoServerName www.my-proyecto.com&lt;/VirtualHost&gt;\nNote que el puerto 80 representa el puerto donde el apache se encuentra corriendo, si usted esta usando otro puerto debe cambiarlo en la segunda linea. El DocumentRoot indica la ruta física en el disco donde se encuentra el proyecto, y finalmente el server name debe apuntar a la dirección local que creamos en nuestro archivo hosts de windows. Espero que sea de utilidad.\n","dateCreated":"2015-05-26T13:22:26-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-05-26T13:22:26-05:00","description":"Un VHOST o virtual host, es un apuntador interno que tendremos en nuestro computador a alguna aplicación web nuestra bajo un dominio o nombre que deseemos establecerle. Es decir si tenemos un proyecto en una carpeta dentro de XAMPP C:/xampp/htdocs/my-proyecto y su respectiva dirección local http://localhost/my-proyecto podremos facilmente crear un dominio ficticio dentro de nuestra máquina a dicho proyecto por ejemplo www.my-proyecto.com (esto solo será accesible desde nuestra máquina). En este sencillo post mostraré un pequeño tutorial de como crear un Virtual Host (VHost) en Windows y un servidor Apache como XAMPP. Como prerequisito entonces tendremos que tener instalado XAMPP (el link es este ).","headline":"Creación de un VHOST en Windows y XAMPP","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/","keywords":"Desarrollo Web, Backend, PHP, Servidores, VHOST, Windows., Xampp"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Un VHOST o virtual host, es un apuntador interno que tendremos en nuestro computador a alguna aplicación web nuestra bajo un dominio o nombre que deseemos establecerle. Es decir si tenemos un proyecto en una carpeta dentro de XAMPP C:/xampp/htdocs/my-proyecto y su respectiva dirección local http://localhost/my-proyecto podremos facilmente crear un dominio ficticio dentro de nuestra máquina a dicho proyecto por ejemplo www.my-proyecto.com (esto solo será accesible desde nuestra máquina). En este sencillo post mostraré un pequeño tutorial de como crear un Virtual Host (VHost) en Windows y un servidor Apache como XAMPP. Como prerequisito entonces tendremos que tener instalado XAMPP (el link es este ). \n\nUbicar la carpeta C:\\Windows\\System32\\Drivers\\etc\nAbrir el archivo hosts con un editor de texto.\nAñadir la siguiente linea al final del archivo\n\n1127.0.0.1       www.my-proyecto.com\nLa url www.my-proyecto.com puede ser cambiada por el nombre que se desee, e incluso es posible tener varios subdominios, por ejemplo testing.my-proyecto-com, production.my-proyecto.com, etc etc y la dirección 127.0.0.1 nunca cambia a menos que tu hayas cambiado la configuración de hosts de windows. Hecho lo anterior entonces debemos abrir XAMPP y se mostrara la consola inicial:    En esta consola haremos click sobre el boton config de la fila correspondiente al Apache y seleccionaremos el archivo httdp.conf, hecho esto se nos abrirá una documento de texto. Iremos hasta el final del documento.\n#El signo de numeral permite ingresar comentarios\n1234&lt;VirtualHost *:80&gt;DocumentRoot /xampp/htdocs/my-proyectoServerName www.my-proyecto.com&lt;/VirtualHost&gt;\nNote que el puerto 80 representa el puerto donde el apache se encuentra corriendo, si usted esta usando otro puerto debe cambiarlo en la segunda linea. El DocumentRoot indica la ruta física en el disco donde se encuentra el proyecto, y finalmente el server name debe apuntar a la dirección local que creamos en nuestro archivo hosts de windows. Espero que sea de utilidad.\n","dateCreated":"2015-05-26T13:22:26-05:00","dateModified":"2018-07-09T13:54:39-05:00","datePublished":"2015-05-26T13:22:26-05:00","description":"Un VHOST o virtual host, es un apuntador interno que tendremos en nuestro computador a alguna aplicación web nuestra bajo un dominio o nombre que deseemos establecerle. Es decir si tenemos un proyecto en una carpeta dentro de XAMPP C:/xampp/htdocs/my-proyecto y su respectiva dirección local http://localhost/my-proyecto podremos facilmente crear un dominio ficticio dentro de nuestra máquina a dicho proyecto por ejemplo www.my-proyecto.com (esto solo será accesible desde nuestra máquina). En este sencillo post mostraré un pequeño tutorial de como crear un Virtual Host (VHost) en Windows y un servidor Apache como XAMPP. Como prerequisito entonces tendremos que tener instalado XAMPP (el link es este ).","headline":"Creación de un VHOST en Windows y XAMPP","image":[],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/","keywords":"Desarrollo Web, Backend, PHP, Servidores, VHOST, Windows., Xampp"}</script>
     <meta name="description" content="Un VHOST o virtual host, es un apuntador interno que tendremos en nuestro computador a alguna aplicación web nuestra bajo un dominio o nombre que deseemos establecerle. Es decir si tenemos un proyecto">
 <meta name="keywords" content="Desarrollo Web,Backend,PHP,Servidores,VHOST,Windows.,Xampp">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Creación de un VHOST en Windows y XAMPP">
-<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/index.html">
+<meta property="og:url" content="https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/index.html">
 <meta property="og:site_name" content="Sebastian Gomez">
 <meta property="og:description" content="Un VHOST o virtual host, es un apuntador interno que tendremos en nuestro computador a alguna aplicación web nuestra bajo un dominio o nombre que deseemos establecerle. Es decir si tenemos un proyecto">
 <meta property="og:locale" content="es">
@@ -346,7 +346,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -354,7 +354,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -362,7 +362,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -441,7 +441,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -449,7 +449,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -457,7 +457,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -490,7 +490,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
                 </a>
             </li>
@@ -498,7 +498,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/">
                     <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
                 </a>
             </li>
@@ -506,7 +506,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/">
                     <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
                 </a>
             </li>
@@ -644,7 +644,7 @@
     
         <script>
              var disqus_config = function () {
-                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/creacion-de-un-vhost-en-windows-y-xampp/';
+                 this.page.url = 'https://sebastian-gomez.com/creacion-de-un-vhost-en-windows-y-xampp/';
                  
                     this.page.identifier = 'creacion-de-un-vhost-en-windows-y-xampp/';
                  
@@ -663,7 +663,7 @@
 
 
     <script>if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+  navigator.serviceWorker.register('/sw.js?t=1534282612163')
     .then(function () {console.log('ServiceWorker Register Successfully.')})
     .catch(function (e) {console.error(e)});
 }

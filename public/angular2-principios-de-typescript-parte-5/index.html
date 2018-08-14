@@ -12,17 +12,17 @@
         <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
     
     
-        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+        <link rel="icon" href="https://sebastian-gomez.com/assets/images/FaviconSG.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Si has seguido mis tutoriales sobre Angular hasta aquí te darás cuenta que he tratado al máximo de evitar el uso de Typescript, de hecho si revisas directamente la documentación de Angular te darás cuenta que de la mayoría de la documentación esta hecha en Typescript. Esto se debe básicamente el equipo de Angular decidio crear Angular sobre TypesScript, TypeScript es una colaboración oficial entre Google y Microsoft con el fin de orientar completamente Javascript a Objetos. \n\nEs decir que podamos usar con Javascript todo el “Paradigma de programación orientada a objetos”, como clases, constructores, métodos, Public, Private, Static, etc.\nQue es TypeScript?Podemos definir TypeScript como un transcopilador de Javascript (WTF?) Si un transcompilador básicamente TypeScript convierte el código TypeScript en código Javascript, sin embargo eso no es todo. Como te he contado en tutoriales pasados existen estándares de Javascript como ECMAScript 5 y ECMAScript 6, ECMAScript 5 es el estándar actual de Javascript que soportan la mayoría de los navegadores actuales, sin embargo ECMAScript 6 mejora el ECMAScript 5 con un montón de nuevas funcionalidades y no es soportado por muchos navegadores. Es por esto que TypeScript es un transcompilador de Javascript es decir que puede transformar tu código TypeScript en código Javascript compatible con ECMAScript 5 o ECMAScript 6.\nPrimeros pasos en con TypeScriptEn este tutorial nos olvidaremos de Angular2 en si, y nos dedicaremos solo a TypeScript de manera independiente, por tanto nuestro primer paso consistirá en la instalación de TypeScript. Para ello vamos a ejecutar el siguiente comando (Recuerda tener instalado NodeJS).\n1npm install -g typescript\nHecho esto ya tenemos TypeScript en nuestro sistema, veamos ahora algunos ejemplos:\nVariables y funciones TypadasSimplemente puedes usar tipos de datos es decir  \njs12345678nombre:string = \"Esto es un string\";edad:number = 43;bandera: boolean = true;//recibe un string como parámetro y retorna un string como resultadofunction hola(nombre:string):string{    return \"hola\"+nombre;}\nArreglosjs12Empresas: Array&lt;string&gt; = ['IBM', 'Microsoft', 'Google'];Empresas: string[] = ['Apple', 'Dell', 'HP'];\nAnyPuedes usar el tipo Any para ponerle un cualquier tipo a una variable, es como un comodin.\njs123algunaCosa: any = 'as string';algunaCosa = 1;algunaCosa = [1, 2, 3];\nVoidPuedes declarar métodos que no retornan nada.\njs123function setNombre(nombre: string): void {  this.nombre = nombre;}\nClases y ObjetosPodemos crear clases con atributos, métodos y constructores.\njs1234567891011121314class persona {  nombre:string;  edad:number;  casado:boolean;  constructor(nombre:string, edad:number, casado:boolean){      this.nombre = nombre;      this.edad = edad;      this.casado = casado;  }  myMetodo():string{      return \"Este metodo simplemente retorna un string\";  }}persona = new Persona(\"juan\",12,false);\nHerenciaSi! Aunque no lo creas puedes usar herencia con TypeScript y es ridículamente fácil:\njs123456class Estudiante extends Persona {  universidad:string;  constructor(){      super();  }}\nComo usar TypeScript en mis proyectos?Luego de haber instalado TypesScript debes crear tu archivo nombre.ts nota que termina en .ts porque es la notacion especifica de TypeScript. Una vez tengas esto tu puedes correr el comando\ntsc nombre.ts\ny veras que te creara un Archivo llamado nombre.js en la misma carpeta donde este tu archivo .ts, y es este archivo el que puede incluir en tus proyectos, independientemente que estés usando Angular2 o no. Otra caracteristica de TypeScript, es que como te dije puedes convertir tu codigo Javascript en ECMAScript 5 o ECMAScript 6, para ello puedes crear un un archivo  tsconfig.json y jugar con las siguientes acciones:\n\nSi usas este archivo puede ejecutar simplemente el comando:\n1tsc\nAsí el transformara todos los archivos con extensión .ts a .js sin necesidad de especificarle uno por uno. Y eso es todo, recuerda Este post hace parte de una serie de tutoriales sobre Angular. Aunque no vimos mucho sobre Angular en este Post te aseguro que estos principios nos serviran para continuar en el aprendizaje de Angular a continuación te dejo los links.\nAngular Parte 0\nQué es AngularJS? Parte 1\nAngularJS vs Angular? Parte 2\nHola Mundo con Angular Parte 3\nAngular aplicación que saluda Parte 4\nSi tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.\n","dateCreated":"2015-11-19T16:04:25-05:00","dateModified":"2018-05-24T09:04:51-05:00","datePublished":"2015-11-19T16:04:25-05:00","description":"Si has seguido mis tutoriales sobre Angular hasta aquí te darás cuenta que he tratado al máximo de evitar el uso de Typescript, de hecho si revisas directamente la documentación de Angular te darás cuenta que de la mayoría de la documentación esta hecha en Typescript. Esto se debe básicamente el equipo de Angular decidio crear Angular sobre TypesScript, TypeScript es una colaboración oficial entre Google y Microsoft con el fin de orientar completamente Javascript a Objetos. ","headline":"Angular, Principios de Typescript Parte 5","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/","keywords":"Angular, Desarrollo Web, AngularJS, CSS, HTML5, Javascript, TypeScript","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"Si has seguido mis tutoriales sobre Angular hasta aquí te darás cuenta que he tratado al máximo de evitar el uso de Typescript, de hecho si revisas directamente la documentación de Angular te darás cuenta que de la mayoría de la documentación esta hecha en Typescript. Esto se debe básicamente el equipo de Angular decidio crear Angular sobre TypesScript, TypeScript es una colaboración oficial entre Google y Microsoft con el fin de orientar completamente Javascript a Objetos. \n\nEs decir que podamos usar con Javascript todo el “Paradigma de programación orientada a objetos”, como clases, constructores, métodos, Public, Private, Static, etc.\nQue es TypeScript?Podemos definir TypeScript como un transcopilador de Javascript (WTF?) Si un transcompilador básicamente TypeScript convierte el código TypeScript en código Javascript, sin embargo eso no es todo. Como te he contado en tutoriales pasados existen estándares de Javascript como ECMAScript 5 y ECMAScript 6, ECMAScript 5 es el estándar actual de Javascript que soportan la mayoría de los navegadores actuales, sin embargo ECMAScript 6 mejora el ECMAScript 5 con un montón de nuevas funcionalidades y no es soportado por muchos navegadores. Es por esto que TypeScript es un transcompilador de Javascript es decir que puede transformar tu código TypeScript en código Javascript compatible con ECMAScript 5 o ECMAScript 6.\nPrimeros pasos en con TypeScriptEn este tutorial nos olvidaremos de Angular2 en si, y nos dedicaremos solo a TypeScript de manera independiente, por tanto nuestro primer paso consistirá en la instalación de TypeScript. Para ello vamos a ejecutar el siguiente comando (Recuerda tener instalado NodeJS).\n1npm install -g typescript\nHecho esto ya tenemos TypeScript en nuestro sistema, veamos ahora algunos ejemplos:\nVariables y funciones TypadasSimplemente puedes usar tipos de datos es decir  \njs12345678nombre:string = \"Esto es un string\";edad:number = 43;bandera: boolean = true;//recibe un string como parámetro y retorna un string como resultadofunction hola(nombre:string):string{    return \"hola\"+nombre;}\nArreglosjs12Empresas: Array&lt;string&gt; = ['IBM', 'Microsoft', 'Google'];Empresas: string[] = ['Apple', 'Dell', 'HP'];\nAnyPuedes usar el tipo Any para ponerle un cualquier tipo a una variable, es como un comodin.\njs123algunaCosa: any = 'as string';algunaCosa = 1;algunaCosa = [1, 2, 3];\nVoidPuedes declarar métodos que no retornan nada.\njs123function setNombre(nombre: string): void {  this.nombre = nombre;}\nClases y ObjetosPodemos crear clases con atributos, métodos y constructores.\njs1234567891011121314class persona {  nombre:string;  edad:number;  casado:boolean;  constructor(nombre:string, edad:number, casado:boolean){      this.nombre = nombre;      this.edad = edad;      this.casado = casado;  }  myMetodo():string{      return \"Este metodo simplemente retorna un string\";  }}persona = new Persona(\"juan\",12,false);\nHerenciaSi! Aunque no lo creas puedes usar herencia con TypeScript y es ridículamente fácil:\njs123456class Estudiante extends Persona {  universidad:string;  constructor(){      super();  }}\nComo usar TypeScript en mis proyectos?Luego de haber instalado TypesScript debes crear tu archivo nombre.ts nota que termina en .ts porque es la notacion especifica de TypeScript. Una vez tengas esto tu puedes correr el comando\ntsc nombre.ts\ny veras que te creara un Archivo llamado nombre.js en la misma carpeta donde este tu archivo .ts, y es este archivo el que puede incluir en tus proyectos, independientemente que estés usando Angular2 o no. Otra caracteristica de TypeScript, es que como te dije puedes convertir tu codigo Javascript en ECMAScript 5 o ECMAScript 6, para ello puedes crear un un archivo  tsconfig.json y jugar con las siguientes acciones:\n\nSi usas este archivo puede ejecutar simplemente el comando:\n1tsc\nAsí el transformara todos los archivos con extensión .ts a .js sin necesidad de especificarle uno por uno. Y eso es todo, recuerda Este post hace parte de una serie de tutoriales sobre Angular. Aunque no vimos mucho sobre Angular en este Post te aseguro que estos principios nos serviran para continuar en el aprendizaje de Angular a continuación te dejo los links.\nAngular Parte 0\nQué es AngularJS? Parte 1\nAngularJS vs Angular? Parte 2\nHola Mundo con Angular Parte 3\nAngular aplicación que saluda Parte 4\nSi tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.\n","dateCreated":"2015-11-19T16:04:25-05:00","dateModified":"2018-05-24T09:04:51-05:00","datePublished":"2015-11-19T16:04:25-05:00","description":"Si has seguido mis tutoriales sobre Angular hasta aquí te darás cuenta que he tratado al máximo de evitar el uso de Typescript, de hecho si revisas directamente la documentación de Angular te darás cuenta que de la mayoría de la documentación esta hecha en Typescript. Esto se debe básicamente el equipo de Angular decidio crear Angular sobre TypesScript, TypeScript es una colaboración oficial entre Google y Microsoft con el fin de orientar completamente Javascript a Objetos. ","headline":"Angular, Principios de Typescript Parte 5","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/","keywords":"Angular, Desarrollo Web, AngularJS, CSS, HTML5, Javascript, TypeScript","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/11/a1.png"}</script>
     <meta name="description" content="Si has seguido mis tutoriales sobre Angular hasta aquí te darás cuenta que he tratado al máximo de evitar el uso de Typescript, de hecho si revisas directamente la documentación de Angular te darás cu">
 <meta name="keywords" content="Angular,Desarrollo Web,AngularJS,CSS,HTML5,Javascript,TypeScript">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Angular, Principios de Typescript Parte 5">
-<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/index.html">
+<meta property="og:url" content="https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/index.html">
 <meta property="og:site_name" content="Sebastian Gomez">
 <meta property="og:description" content="Si has seguido mis tutoriales sobre Angular hasta aquí te darás cuenta que he tratado al máximo de evitar el uso de Typescript, de hecho si revisas directamente la documentación de Angular te darás cu">
 <meta property="og:locale" content="es">
@@ -368,7 +368,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -376,7 +376,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -384,7 +384,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -464,7 +464,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -472,7 +472,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -480,7 +480,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -513,7 +513,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
                 </a>
             </li>
@@ -521,7 +521,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/">
                     <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
                 </a>
             </li>
@@ -529,7 +529,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/">
                     <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
                 </a>
             </li>
@@ -667,7 +667,7 @@
     
         <script>
              var disqus_config = function () {
-                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/angular2-principios-de-typescript-parte-5/';
+                 this.page.url = 'https://sebastian-gomez.com/angular2-principios-de-typescript-parte-5/';
                  
                     this.page.identifier = 'angular2-principios-de-typescript-parte-5/';
                  
@@ -686,7 +686,7 @@
 
 
     <script>if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+  navigator.serviceWorker.register('/sw.js?t=1534282612163')
     .then(function () {console.log('ServiceWorker Register Successfully.')})
     .catch(function (e) {console.error(e)});
 }

@@ -12,17 +12,17 @@
         <meta name="keywords" content="Javascript,Angular,Desarrollo Web,Firebase,Rx.js,Ionic,">
     
     
-        <link rel="icon" href="https://sebastian-gomez-blog.firebaseapp.com/assets/images/FaviconSG.png">
+        <link rel="icon" href="https://sebastian-gomez.com/assets/images/FaviconSG.png">
     
     
         <link rel="alternate" type="application/atom+xml" title="RSS" href="/atom.xml">
     
-    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"\nEn el post anterior tuvimos un primer acercamiento a la implementación del operador map en observables, lo implementamos desde cero similarmente a como lo hace RX.js. En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable añadiendo el operador map. Primero recordemos cual es la definición más pura de un Observable con una función generadora de observables a partir de eventos:\njs12345678910111213141516171819class Observable {    constructor(subscribe) {    this._subscribe = subscribe;  }  subscribe(observer) {    return this._subscribe(observer);  }  static fromEvent(domElement, eventName) {    return new Observable(function subscribe(observer) {      const handler = ev =&gt; { observer.next(ev) };      domElement.addEventListener(eventName, handler);      return {        unsubscribe() {          domElement.removeEventListener(eventName, handler);        }      }    });  }}\nDe esta manera tu puedes crear Observables que te devolverán información del evento de la siguiente manera:\njs123456789const button = document.getElementById(\"button\");const clicks = Observable.fromEvent(button, \"click\");const clicksSubscription = clicks.subscribe({  next(e) {    console.log(\"Click in the button”, e); // “e” contiene toda la información del evento  }});clicksSubscription.unsubscribe(); // De esta manera te puedes des-suscribir\nSin embargo es probable que necesitemos hacer más operaciones sobre la cadena de datos, imagínate si quizá requiramos solamente obtener sólo algunos datos del evento por ejemplo solo la posición del Mouse. O imagínate si sólo queremos escuchar por los clicks que se hagan en la parte izquierda del botón. Pues bien vamos a implementar dos funciones que quizá ya conozcas porque se usan principalmente para el procesamiento de arrays. Vamos a implementar la función filter sobre Observables. Pero antes veamos un ejemplo sobre como es su funcionamiento sobre Arrays en javascript para luego traerlo a nuestra definición de observables e implementarlo allí.\njs12[1,2,3,4].filter(x=&gt; x &gt; 3) // retorna [4]\nComo vez similarmente que map, filter recibe como parámetro una función, solo que en este casó es de validación es decir retorna “true” o “false”. Valiendose de esta función el operador filter retorna el elemento para el cual la función de validación es “true”. Revisemos como sería la implementación si sobre arrays para luego extenderla a Observables.\njs12345678910111213141516171819filter(validationFunction) {  const self = this;  return new Observable(function subscribe(observer) {    const subscription = self.subscribe({      next(v) {        if(validationFunction(v)) {          observer.next(v);        }      },      error (e) {        observer.error(e);      },      complete () {        observer.complete();      }    });    return subscription;  });}\n¿Es más simple esta vez, no? En general los operadores sobre observables siguen la misma lógica. Todos (O al menos la mayoría) deben retornar un nuevo observable y las operaciones o filtros sobre los valores se deben hacer sobre la función next. Finalmente veamos como usar el operador filter sobre observables para filtrar los clicks que se hacen sobre un botón pero que cumplen el criterio de encontrarse sobre el lado izquierdo del mouse.\njs1234567const button = document.getElementById(\"button\");const clicks = Observable.fromEvent(button, \"click\");const clicksSubscription = clicks.filter(ev =&gt; ev.offsetX &lt; 40).map(ev =&gt; ev.offsetX ).subscribe({  next(offSetX) {    console.log(\"La posición del mouse respecto a X \" + offSetX); // Solo imprime si haces click a la izquerda de \"Me\"  }});\nFinalmente aquí está el ejemplo completo con la implementación de filter y map:\nhttps://codepen.io/seagomezar/pen/WdVzxB\nEso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza de los operadores sobre observables. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.","dateCreated":"2018-04-10T07:16:12-05:00","dateModified":"2018-05-24T09:08:40-05:00","datePublished":"2018-04-10T07:16:12-05:00","description":"En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable añadiendo el operador map.","headline":"Implementando filter como operador en Observables","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/","keywords":"Desarrollo Web, Javascript, Programación Reactiva","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"}</script>
+    <script type="application/ld+json">{"@context":"http://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg"},"articleBody":"\nEn el post anterior tuvimos un primer acercamiento a la implementación del operador map en observables, lo implementamos desde cero similarmente a como lo hace RX.js. En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable añadiendo el operador map. Primero recordemos cual es la definición más pura de un Observable con una función generadora de observables a partir de eventos:\njs12345678910111213141516171819class Observable {    constructor(subscribe) {    this._subscribe = subscribe;  }  subscribe(observer) {    return this._subscribe(observer);  }  static fromEvent(domElement, eventName) {    return new Observable(function subscribe(observer) {      const handler = ev =&gt; { observer.next(ev) };      domElement.addEventListener(eventName, handler);      return {        unsubscribe() {          domElement.removeEventListener(eventName, handler);        }      }    });  }}\nDe esta manera tu puedes crear Observables que te devolverán información del evento de la siguiente manera:\njs123456789const button = document.getElementById(\"button\");const clicks = Observable.fromEvent(button, \"click\");const clicksSubscription = clicks.subscribe({  next(e) {    console.log(\"Click in the button”, e); // “e” contiene toda la información del evento  }});clicksSubscription.unsubscribe(); // De esta manera te puedes des-suscribir\nSin embargo es probable que necesitemos hacer más operaciones sobre la cadena de datos, imagínate si quizá requiramos solamente obtener sólo algunos datos del evento por ejemplo solo la posición del Mouse. O imagínate si sólo queremos escuchar por los clicks que se hagan en la parte izquierda del botón. Pues bien vamos a implementar dos funciones que quizá ya conozcas porque se usan principalmente para el procesamiento de arrays. Vamos a implementar la función filter sobre Observables. Pero antes veamos un ejemplo sobre como es su funcionamiento sobre Arrays en javascript para luego traerlo a nuestra definición de observables e implementarlo allí.\njs12[1,2,3,4].filter(x=&gt; x &gt; 3) // retorna [4]\nComo vez similarmente que map, filter recibe como parámetro una función, solo que en este casó es de validación es decir retorna “true” o “false”. Valiendose de esta función el operador filter retorna el elemento para el cual la función de validación es “true”. Revisemos como sería la implementación si sobre arrays para luego extenderla a Observables.\njs12345678910111213141516171819filter(validationFunction) {  const self = this;  return new Observable(function subscribe(observer) {    const subscription = self.subscribe({      next(v) {        if(validationFunction(v)) {          observer.next(v);        }      },      error (e) {        observer.error(e);      },      complete () {        observer.complete();      }    });    return subscription;  });}\n¿Es más simple esta vez, no? En general los operadores sobre observables siguen la misma lógica. Todos (O al menos la mayoría) deben retornar un nuevo observable y las operaciones o filtros sobre los valores se deben hacer sobre la función next. Finalmente veamos como usar el operador filter sobre observables para filtrar los clicks que se hacen sobre un botón pero que cumplen el criterio de encontrarse sobre el lado izquierdo del mouse.\njs1234567const button = document.getElementById(\"button\");const clicks = Observable.fromEvent(button, \"click\");const clicksSubscription = clicks.filter(ev =&gt; ev.offsetX &lt; 40).map(ev =&gt; ev.offsetX ).subscribe({  next(offSetX) {    console.log(\"La posición del mouse respecto a X \" + offSetX); // Solo imprime si haces click a la izquerda de \"Me\"  }});\nFinalmente aquí está el ejemplo completo con la implementación de filter y map:\nhttps://codepen.io/seagomezar/pen/WdVzxB\nEso es todo, espero que este post te sea de utilidad y lo puedas aplicar a algún proyecto que tengas en mente y que simplemente te haya ayudado a entender la naturaleza de los operadores sobre observables. déjame un comentario si lograste implementarlo, si quieres añadir alguna otra funcionalidad o si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.","dateCreated":"2018-04-10T07:16:12-05:00","dateModified":"2018-05-24T09:08:40-05:00","datePublished":"2018-04-10T07:16:12-05:00","description":"En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable añadiendo el operador map.","headline":"Implementando filter como operador en Observables","image":["https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"],"mainEntityOfPage":{"@type":"WebPage","@id":"https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/"},"publisher":{"@type":"Organization","name":"Sebastian Gomez","sameAs":["https://github.com/seagomezar","https://twitter.com/sebasgojs","https://plus.google.com/u/1/+SebastianGomezFrontEnd","https://www.linkedin.com/profile/sebastian-gomez-frontend/"],"image":"me.jpg","logo":{"@type":"ImageObject","url":"me.jpg"}},"url":"https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/","keywords":"Desarrollo Web, Javascript, Programación Reactiva","thumbnailUrl":"https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2018/03/984368.png?w=400&ssl=1"}</script>
     <meta name="description" content="En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable añadiendo el operador map.">
 <meta name="keywords" content="Desarrollo Web,Javascript,Programación Reactiva">
 <meta property="og:type" content="blog">
 <meta property="og:title" content="Implementando filter como operador en Observables">
-<meta property="og:url" content="https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/index.html">
+<meta property="og:url" content="https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/index.html">
 <meta property="og:site_name" content="Sebastian Gomez">
 <meta property="og:description" content="En este post vamos a aumentar el número de operadores que podemos implementar y usar dentro de un Observable añadiendo el operador map.">
 <meta property="og:locale" content="es">
@@ -350,7 +350,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -358,7 +358,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -366,7 +366,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -446,7 +446,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/" title="Compartir en Facebook">
+                <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/" title="Compartir en Facebook">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i>
                 </a>
             </li>
@@ -454,7 +454,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/" title="Compartir en Twitter">
+                <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/" title="Compartir en Twitter">
                     <i class="fa fa-twitter" aria-hidden="true"></i>
                 </a>
             </li>
@@ -462,7 +462,7 @@
             
             
             <li class="post-action hide-xs">
-                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/" title="Compartir en Google+">
+                <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/" title="Compartir en Google+">
                     <i class="fa fa-google-plus" aria-hidden="true"></i>
                 </a>
             </li>
@@ -495,7 +495,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/">
+                <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/">
                     <i class="fa fa-facebook-official" aria-hidden="true"></i><span>Compartir en Facebook</span>
                 </a>
             </li>
@@ -503,7 +503,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/">
+                <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/">
                     <i class="fa fa-twitter" aria-hidden="true"></i><span>Compartir en Twitter</span>
                 </a>
             </li>
@@ -511,7 +511,7 @@
             
             
             <li class="share-option">
-                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/">
+                <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/">
                     <i class="fa fa-google-plus" aria-hidden="true"></i><span>Compartir en Google+</span>
                 </a>
             </li>
@@ -649,7 +649,7 @@
     
         <script>
              var disqus_config = function () {
-                 this.page.url = 'https://sebastian-gomez-blog.firebaseapp.com/implementando-filter-como-operador-en-observables/';
+                 this.page.url = 'https://sebastian-gomez.com/implementando-filter-como-operador-en-observables/';
                  
                     this.page.identifier = 'implementando-filter-como-operador-en-observables/';
                  
@@ -668,7 +668,7 @@
 
 
     <script>if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js?t=1531162600924')
+  navigator.serviceWorker.register('/sw.js?t=1534282612163')
     .then(function () {console.log('ServiceWorker Register Successfully.')})
     .catch(function (e) {console.error(e)});
 }
