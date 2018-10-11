@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://sebastian-gomez.com/"/>
-  <updated>2018-08-14T21:34:03.490Z</updated>
+  <updated>2018-10-11T18:53:36.174Z</updated>
   <id>https://sebastian-gomez.com/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Escribiendo tests para funciones y propiedades privadas en angular 6</title>
+    <link href="https://sebastian-gomez.com/Escribiendo-tests-para-funciones-y-propiedades-privadas-en-angular-6/"/>
+    <id>https://sebastian-gomez.com/Escribiendo-tests-para-funciones-y-propiedades-privadas-en-angular-6/</id>
+    <published>2018-10-11T13:24:29.000Z</published>
+    <updated>2018-10-11T18:53:36.174Z</updated>
+    
+    <content type="html"><![CDATA[<!-- excerpt --></p><p>Vamos a suponer que sabes que es Angular y que sabes como crear un servicio en Angular, por tanto habrás notado que al escribir <code>ng generate service &lt;nombre del servicio&gt;</code> se crean dos archivos, el primero es tu servicio y el segundo notarás que se crea con el mismo nombre de tu servicio pero con la extensión .spec al final, te darás cuenta que lo único que quiere hacer este archivo es proveerte un esqueleto fácil y entendible en el que puedas empezar a escribir pruebas de la manera más fácil posible.</p><p>Empecemos por algunos fundamentos. Supongamos que decidiste crear un servicio llamado “names” porque será un servicio que retorne una lista de nombres. Para ello vas a guardar dichos nombres en una propiedad privada y vas crear un metodo get para devolver dichos nombres a un controlador u otro servicio. Sería algo así:</p><figure class="codeblock codeblock--tabbed"><figcaption><a href="https://github.com/seagomezar/ng-col-angular-ut/blob/step2/src/app/names.service.ts" target="_blank" rel="noopener">names.service.ts</a><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Observable</span> </span>{</span><br><span class="line">    <span class="keyword">import</span> { Injectable } <span class="keyword">from</span> <span class="string">'@angular/core'</span>;</span><br><span class="line"></span><br><span class="line">    @Injectable({</span><br><span class="line">        providedIn: <span class="string">'root'</span></span><br><span class="line">    })</span><br><span class="line">    <span class="keyword">export</span> <span class="class"><span class="keyword">class</span> <span class="title">NamesService</span> </span>{</span><br><span class="line"></span><br><span class="line">        private names: string[] = [<span class="string">'Juan'</span>, <span class="string">'Mati'</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">constructor</span>() { }</span><br><span class="line"></span><br><span class="line">        public getNames() {</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.names;</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure></div></figure><p>Ahora bien, nuestra primera tentación será escribir en nuestra prueba unitaria algo como esto: </p><figure class="codeblock codeblock--tabbed"><figcaption><span>names.service.spec.ts</span><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> { TestBed, inject } <span class="keyword">from</span> <span class="string">'@angular/core/testing'</span>; <span class="comment">// We always need this</span></span><br><span class="line"><span class="keyword">import</span> { NamesService } <span class="keyword">from</span> <span class="string">'./names.service'</span>; <span class="comment">// Our service to test</span></span><br><span class="line"></span><br><span class="line">describe(<span class="string">'NamesService'</span>, () =&gt; {</span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> {</span><br><span class="line">        TestBed.configureTestingModule({</span><br><span class="line">        providers: [NamesService] <span class="comment">// Service to test</span></span><br><span class="line">        });</span><br><span class="line">    });</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should be created'</span>, inject([NamesService], (service: NamesService) =&gt; {</span><br><span class="line">        expect(service).toBeTruthy(); <span class="comment">// We hope the service has been inyected and defined</span></span><br><span class="line">    }));</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should return all names'</span>, inject([NamesService], (service: NamesService) =&gt; {</span><br><span class="line">        expect(service.getNames()).toBe(service.names); <span class="comment">// Not allowed</span></span><br><span class="line">        expect(service.getNames()[<span class="number">0</span>]).toBe(service.names[<span class="number">0</span>]); <span class="comment">// Not allowed again</span></span><br><span class="line">        expect(service.getNames()[<span class="number">0</span>]).toBe(<span class="string">'Mati); // Ok, but Seriously</span></span><br><span class="line"><span class="string">    }));</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">});</span></span><br></pre></td></tr></tbody></table></figure></div></figure><p>Sin embargo, te darás cuenta de desafortunadamente no puedes acceder a la propiedad names del servicio porque dicha propiedad es privada. Tu test debería estar fallando. Por eso te verás tentado a comparar con los nombres directamente lo cual no resulta ser una buena idea si la cantidad de nombres es muy grande y si cambia constantemente. Por eso lo que tu podrías hacer es omitir a typescript y acceder al objeto mediante la sintaxis de array (cosas que solo javascript nos permite). <code>service[&quot;names&quot;]</code> miremos como quedaría:</p><figure class="codeblock codeblock--tabbed"><figcaption><span>names.service.spec.ts</span><ul class="tabs"><li class="tab active">js</li></ul></figcaption><div class="tabs-content"><figure class="highlight js" style="display: block;"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> { TestBed, inject } <span class="keyword">from</span> <span class="string">'@angular/core/testing'</span>; <span class="comment">// We always need this</span></span><br><span class="line"><span class="keyword">import</span> { NamesService } <span class="keyword">from</span> <span class="string">'./names.service'</span>; <span class="comment">// Our service to test</span></span><br><span class="line"></span><br><span class="line">describe(<span class="string">'NamesService'</span>, () =&gt; {</span><br><span class="line">    beforeEach(<span class="function"><span class="params">()</span> =&gt;</span> {</span><br><span class="line">        TestBed.configureTestingModule({</span><br><span class="line">        providers: [NamesService] <span class="comment">// Service to test</span></span><br><span class="line">        });</span><br><span class="line">    });</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should be created'</span>, inject([NamesService], (service: NamesService) =&gt; {</span><br><span class="line">        expect(service).toBeTruthy(); <span class="comment">// We hope the service has been inyected and defined</span></span><br><span class="line">    }));</span><br><span class="line"></span><br><span class="line">    it(<span class="string">'should return all names'</span>, inject([NamesService], (service: NamesService) =&gt; {</span><br><span class="line">        expect(service.getNames().length).toBe(service[<span class="string">"names"</span>].length); <span class="comment">// OK</span></span><br><span class="line">        expect(service.getNames()[<span class="number">0</span>]).toBe(service[<span class="string">"names"</span>][<span class="number">0</span>]); <span class="comment">// OK</span></span><br><span class="line">    }));</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure></div></figure><p>Habrá muchas discusiones sobre si es correcto teóricamente probar las propiedades privadas o no, si es correcto aplicar esta sintaxís o si el test es limpio o no. Sin embargo esto no tiene una respuesta concreta. Dependerá de la filosofía del equipo y de la guía de estilo que tu equipo adopte. Personalmente y en mis equipos de trabajo me gusta tener una navaja suiza de opciones para diferentes casos y tipos de proyecto por lo cual puesde ver esta opción como una herramienta más dentro de tus habilidades de testing.</p><p>Eso es todo, espero que este post te sea de utilidad, Si tienes alguna duda no dudes en dejarme un comentario en la parte de abajo, recuerda que si te gustó también puedes compartir usando los links a las redes sociales en la parte de abajo.</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Escribir pruebas unitarias debe convertirse en una tarea diaria, no es posible crear una aplicación en Angular de calidad sin realizar un proceso consciente de unit testing. En este post veremos como probar funciones que retornan propiedades privadas en Angular 6 con Karma y Jasmine.&lt;br&gt;
+    
+    </summary>
+    
+      <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
+    
+    
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+    
+      <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
+    
+  </entry>
   
   <entry>
     <title>Implementando concat para concatenar observables</title>
@@ -270,9 +294,9 @@
       <category term="Javascript" scheme="https://sebastian-gomez.com/categories/Javascript/"/>
     
     
-      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
-    
       <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
+    
+      <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
     
       <category term="Desarrollo web" scheme="https://sebastian-gomez.com/tags/Desarrollo-web/"/>
     
@@ -378,11 +402,11 @@
     
       <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
+    
       <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
       <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
-    
-      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
       <category term="TypeScript" scheme="https://sebastian-gomez.com/tags/TypeScript/"/>
     
@@ -406,17 +430,17 @@
       <category term="Typescript" scheme="https://sebastian-gomez.com/categories/Typescript/"/>
     
     
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+    
       <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
       <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
       <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
       <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
-    
-      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
       <category term="TypeScript" scheme="https://sebastian-gomez.com/tags/TypeScript/"/>
     
@@ -440,17 +464,17 @@
       <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+    
       <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
       <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
       <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
       <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
-    
-      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
   </entry>
   
@@ -474,13 +498,13 @@
     
       <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
+    
       <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
       <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
       <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
-    
-      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
       <category term="Desarrollo web" scheme="https://sebastian-gomez.com/tags/Desarrollo-web/"/>
     
@@ -504,17 +528,17 @@
       <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+    
       <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
       <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
       <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
       <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
-    
-      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
   </entry>
   
@@ -536,41 +560,17 @@
       <category term="Angular" scheme="https://sebastian-gomez.com/categories/Angular/"/>
     
     
+      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+    
       <category term="Angular" scheme="https://sebastian-gomez.com/tags/Angular/"/>
     
-      <category term="Desarrollo Web" scheme="https://sebastian-gomez.com/tags/Desarrollo-Web/"/>
+      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
     
       <category term="AngularJS" scheme="https://sebastian-gomez.com/tags/AngularJS/"/>
     
       <category term="CSS" scheme="https://sebastian-gomez.com/tags/CSS/"/>
     
       <category term="HTML5" scheme="https://sebastian-gomez.com/tags/HTML5/"/>
-    
-      <category term="Javascript" scheme="https://sebastian-gomez.com/tags/Javascript/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Sobrecarga de métodos</title>
-    <link href="https://sebastian-gomez.com/sobrecarga-de-metodos/"/>
-    <id>https://sebastian-gomez.com/sobrecarga-de-metodos/</id>
-    <published>2015-10-28T14:45:21.000Z</published>
-    <updated>2018-07-09T18:54:39.552Z</updated>
-    
-    <content type="html"><![CDATA[<p>La sobrecarga de métodos es una herramienta que nos da la programación orientada objetos, ya que nos permite modelar y definir el comportamiento de los objetos como queramos, es decir de acuerdo a unos parámetros de entrada ejecutar uno u otro método. Concretamente en Java es posible sobrecargar métodos, es decir, definir dos o más dentro de la misma clase, que compartan nombre pero que las declaraciones de sus parámetros sean diferentes; la sobre carga es una forma de polimorfismo ya que en determinado momento un objeto puede asumir uno u otro comportamiento. <a id="more"></a></p><p>Cuando se llaman los métodos sobrecargados, el compilador determina cuál es el método invocado basándose en la cantidad y tipo de argumentos pasados; por consiguiente, los métodos sobrecargados deben diferir en números y tipo de parámetros. Cuando Java encuentra una llamada a un método sobrecargado, ejecuta la versión del que tiene parámetros (cantidad y tipo) que coinciden con los argumentos utilizados en la llamada.</p><p>Java diferencia los métodos sobrecargados con base en el número y tipo de argumentos que tiene el método y no por el tipo que devuelve.</p><p>También existe la sobrecarga de constructores: Cuando en una clase existen constructores múltiples, se dice que hay sobrecarga de constructores.</p><p><strong>Ejemplo</strong></p><p>Se define la clase Sobrecarga con tres métodos de nombre test sobrecargados, diferenciándose entre ellos por la cantidad/tipo de los parámetros main () llama a cada uno de ellos.</p><p>El método test () se sobrecargó tres veces; la primera versión no tiene parámetros; la segunda, un entero y la tercera dos enteros.</p><p><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/sobrecarga1-300x222.png" alt="sobrecarga1"> <img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/sobrecarga2-300x190.png" alt="sobrecarga2"> </p><p>La ejecución da lugar a esta salida:<br><img src="https://storage.googleapis.com/sebastian-gomez-blog.appspot.com/uploads/2015/10/sobrecarga3-300x55.png" alt="sobrecarga3"> </p><p>Listo, hemos terminado nuestra aplicación orientada a objetos y aplicando correctamente el concepto de herencia. Espero que este tutorial les haya sido de mas ayuda, recuerda “la práctica hace la perfección”, también si quieres aprender mas sobre el tema te invito a que veas estos posts: [Herencia y polimorfismo.]</p><p>(<a href="http://www.sebastian-gomez.com/java/herencia-y-polimorfismo/" target="_blank" rel="noopener">http://www.sebastian-gomez.com/java/herencia-y-polimorfismo/</a>) <a href="http://www.sebastian-gomez.com/java/entendiendo-la-herencia-con-un-ejemplo/" target="_blank" rel="noopener">Herencia con un ejemplo.</a> <a href="http://www.sebastian-gomez.com/java/creacion-y-personalizacion-de-interfaces-graficas-usando-netbeans/" target="_blank" rel="noopener">Interfaces en Java.</a> Escríbeme si tienes alguna duda y no olvides si te ha gustado este tutorial compartelo!</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;La sobrecarga de métodos es una herramienta que nos da la programación orientada objetos, ya que nos permite modelar y definir el comportamiento de los objetos como queramos, es decir de acuerdo a unos parámetros de entrada ejecutar uno u otro método. Concretamente en Java es posible sobrecargar métodos, es decir, definir dos o más dentro de la misma clase, que compartan nombre pero que las declaraciones de sus parámetros sean diferentes; la sobre carga es una forma de polimorfismo ya que en determinado momento un objeto puede asumir uno u otro comportamiento.
-    
-    </summary>
-    
-      <category term="Java" scheme="https://sebastian-gomez.com/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="https://sebastian-gomez.com/tags/Java/"/>
-    
-      <category term="Programación orientada a objetos." scheme="https://sebastian-gomez.com/tags/Programacion-orientada-a-objetos/"/>
     
   </entry>
   

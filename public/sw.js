@@ -24,15 +24,15 @@ var precacheUrls = [];
 
   precacheUrls.push('/');
 
+  precacheUrls.push('/implementando-filter-como-operador-en-observables/');
+
+  precacheUrls.push('/Escribiendo-tests-para-funciones-y-propiedades-privadas-en-angular-6/');
+
   precacheUrls.push('/implementando-google-cloud-vision-en-nodejs/');
 
-  precacheUrls.push('/Implementando-concat-para-concatenar-observables/');
-
-  precacheUrls.push('/implementando-map-como-operador-en-observables/');
-
-  precacheUrls.push('/angular-2-aplicacion-que-saluda-parte-4/');
-
   precacheUrls.push('/todo-sobre-transiciones-en-css/');
+
+  precacheUrls.push('/todo-sobre-animaciones-en-css/');
 
 toolbox.precache(precacheUrls);
 toolbox.options = {"networkTimeoutSeconds":5};
