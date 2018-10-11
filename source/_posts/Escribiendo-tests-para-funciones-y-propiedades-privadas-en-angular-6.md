@@ -13,7 +13,7 @@ categories:
 ---
 
 Escribir pruebas unitarias debe convertirse en una tarea diaria, no es posible crear una aplicación en Angular de calidad sin realizar un proceso consciente de unit testing. En este post veremos como probar funciones que retornan propiedades privadas en Angular 6 con Karma y Jasmine.
-<!-- excerpt -->
+<!-- more -->
 
 Vamos a suponer que sabes que es Angular y que sabes como crear un servicio en Angular, por tanto habrás notado que al escribir `ng generate service <nombre del servicio>` se crean dos archivos, el primero es tu servicio y el segundo notarás que se crea con el mismo nombre de tu servicio pero con la extensión .spec al final, te darás cuenta que lo único que quiere hacer este archivo es proveerte un esqueleto fácil y entendible en el que puedas empezar a escribir pruebas de la manera más fácil posible.
 
