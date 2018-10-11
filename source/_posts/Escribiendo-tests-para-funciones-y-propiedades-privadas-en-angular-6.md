@@ -1,6 +1,6 @@
 ---
 title: Escribiendo tests para funciones y propiedades privadas en angular 6
-date: 2018-10-11 13:24:29
+date: 2018-06-15 13:24:29
 tags:
   - Desarrollo Web
   - Angular
