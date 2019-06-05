@@ -19,7 +19,7 @@ timezone: UTC
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: https://sebastian-gomez.com
+url: http://localhost:4000
 root: /
 permalink: :title/
 permalink_defaults:
@@ -49,16 +49,16 @@ highlight:
   line_number: true
   auto_detect: true
   tab_replace:
-  
+
 # Home page setting
 # path: Root path for your blogs index page. (default = '')
 # per_page: Posts displayed per page. (0 = disable pagination)
 # order_by: Posts order. (Order by date descending by default)
 index_generator:
-  path: ''
+  path: ""
   per_page: 6
   order_by: -date
-  
+
 # Category & Tag
 default_category: uncategorized
 category_map:
@@ -146,6 +146,6 @@ deploy:
   type:
 
 feed:
-    type: atom
-    path: atom.xml
-    limit: 20
+  type: atom
+  path: atom.xml
+  limit: 20
