@@ -27,15 +27,14 @@ Las aplicaciones modernas a escala Web requieren de la gestión y procesamiento 
 - [Grandes Conjuntos de Datos y el uso de BigQuery](https://towardsdatascience.com/bigquery-without-a-credit-card-discover-learn-and-share-199e08d4a064)
 - - Cuarto Ejercicio: Consultando y visualizando altos Volúmenes de datos
 
-- MapReduce 1 (Viernes 7 de Junio)
-- - Quinto Ejercicio: Web Workers (Javascript)
-- - Sexto Ejercicio: Implementando MapReduce (Javascript)
+- [MapReduce 1 (Viernes 7 de Junio)](https://docs.google.com/presentation/d/1DlQ0ozRNJ7DRZbntjufnEQHbIYIl6jYk2G9ynBYTHCo/edit?usp=sharing)
+- - Quinto Ejercicio: MapReduce (Teórico)
 
-- MapReduce 2 (Sábado 8 de Junio)
-- - Octavo Ejercicio: Implementando MapReduce (MongoDB)
+- [MapReduce 2 (Sábado 8 de Junio)](https://github.com/seagomezar/MapReduceJS)
+- - Sexto Ejercicio: Implementando MapReduce con WebWorkers (Javascript)
 
 - Bases de datos No relacionales - NoSQL (Viernes 14 de Junio)
-- - Noveno Ejercicio: Bases de Datos en Tiempo Real (Firebase)
+- - Séptimo Ejercicio: Bases de Datos NoSQL (MongoDB)
 
 - Machine Learning (Sabado 15 de Junio)
 - - Décimo Ejercicio: Entrenando un Modelo de Machine Learning (Python y TensorFlow)
@@ -45,3 +44,8 @@ Las aplicaciones modernas a escala Web requieren de la gestión y procesamiento 
 - Ejercicios en Clase 45%
 - Examen del curso 25% (Viernes 21 de Junio)
 - [Exposición y trabajo final del curso 30% (Viernes 21 de Junio)](https://drive.google.com/open?id=18uzP5uGg7OhbEDQIECtT8XtA4jr3NTf9)
+
+### Otros Recursos
+
+- [BASES DE DATOS NOSQL: ARQUITECTURA Y EJEMPLOS DE APLICACIÓN](https://core.ac.uk/download/pdf/44310803.pdf)
+- [MongoDB](http://bibing.us.es/proyectos/abreproy/12037/fichero/PFC_Sergio_Bellido_Sanchez%252FTema5_mongodb.pdf)
