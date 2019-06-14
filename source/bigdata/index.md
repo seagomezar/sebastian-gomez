@@ -33,7 +33,7 @@ Las aplicaciones modernas a escala Web requieren de la gestión y procesamiento 
 - [MapReduce 2 (Sábado 8 de Junio)](https://github.com/seagomezar/MapReduceJS)
 - - Sexto Ejercicio: Implementando MapReduce con WebWorkers (Javascript)
 
-- Bases de datos No relacionales - NoSQL (Viernes 14 de Junio)
+- [Bases de datos No relacionales - NoSQL (Viernes 14 de Junio)](https://docs.google.com/presentation/d/1epgQW7S66Q0CguurpYgjH66F-aMKDb12vUvcTnebtVo/edit?usp=sharing)
 - - Séptimo Ejercicio: Bases de Datos NoSQL (MongoDB)
 
 - Machine Learning (Sabado 15 de Junio)
@@ -49,3 +49,4 @@ Las aplicaciones modernas a escala Web requieren de la gestión y procesamiento 
 
 - [BASES DE DATOS NOSQL: ARQUITECTURA Y EJEMPLOS DE APLICACIÓN](https://core.ac.uk/download/pdf/44310803.pdf)
 - [MongoDB](http://bibing.us.es/proyectos/abreproy/12037/fichero/PFC_Sergio_Bellido_Sanchez%252FTema5_mongodb.pdf)
+- [Guia MongoDB](http://disi.unal.edu.co/~gjhernandezp/datascience/talks/Taller-NoSQL.pdf)
