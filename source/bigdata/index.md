@@ -36,17 +36,18 @@ Las aplicaciones modernas a escala Web requieren de la gestión y procesamiento 
 - [Bases de datos No relacionales - NoSQL (Viernes 14 de Junio)](https://docs.google.com/presentation/d/1epgQW7S66Q0CguurpYgjH66F-aMKDb12vUvcTnebtVo/edit?usp=sharing)
 - - Séptimo Ejercicio: Bases de Datos NoSQL (MongoDB)
 
-- Machine Learning (Sabado 15 de Junio)
-- - Décimo Ejercicio: Entrenando un Modelo de Machine Learning (Python y TensorFlow)
+- [Machine Learning (Sabado 15 de Junio)](https://docs.google.com/presentation/d/1U8YG5Hh0USOrt40Ce-ZP62tRYSjJidimXc3Wv0QP3j4/edit?usp=sharing)
+- - Octavo Ejercicio: Creando y entrenando un Modelo de Machine Learning
 
 ### Evaluación
 
-- Ejercicios en Clase 45%
-- Examen del curso 25% (Viernes 21 de Junio)
-- [Exposición y trabajo final del curso 30% (Viernes 21 de Junio)](https://drive.google.com/open?id=18uzP5uGg7OhbEDQIECtT8XtA4jr3NTf9)
+- Ejercicios en Clase 50%
+- Examen del curso 20% (Viernes 21 de Junio)
+- [Exposición y trabajo final del curso 30% (Sabad 22 de Junio)](https://drive.google.com/open?id=18uzP5uGg7OhbEDQIECtT8XtA4jr3NTf9)
 
 ### Otros Recursos
 
 - [BASES DE DATOS NOSQL: ARQUITECTURA Y EJEMPLOS DE APLICACIÓN](https://core.ac.uk/download/pdf/44310803.pdf)
 - [MongoDB](http://bibing.us.es/proyectos/abreproy/12037/fichero/PFC_Sergio_Bellido_Sanchez%252FTema5_mongodb.pdf)
 - [Guia MongoDB](http://disi.unal.edu.co/~gjhernandezp/datascience/talks/Taller-NoSQL.pdf)
+- [Whiteboard](http://collabedit.com/m666q)
